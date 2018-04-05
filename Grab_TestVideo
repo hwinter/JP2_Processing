@@ -1,0 +1,3 @@
+#!/bin/bash
+
+scp -r solopticon@solopticon:~/github/JP2_Processing/jp2_test.mp4 ~/Downloads/jp2_test.mp4

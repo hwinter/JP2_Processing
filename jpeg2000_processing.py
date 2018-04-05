@@ -66,3 +66,4 @@ pool.map(Colorize, sorted_list)
 pool.close()
 pool.join()
 
+supbrocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y jp2_test.mp4")
