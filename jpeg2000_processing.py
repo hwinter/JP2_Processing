@@ -48,7 +48,7 @@ def Colorize(FILE):
 
 
 sorted_list = Fits_Index("working")
-sorted_list = AIA_DecimateIndex(sorted_list, 4)
+sorted_list = AIA_DecimateIndex(sorted_list, 16)
 
 if os.path.isdir("numbered") == False:
 	subprocess.call("mkdir numbered" , shell = True)
@@ -72,10 +72,11 @@ finish = datetime.datetime.now()
 frame_timer = finish - start
 
 start = datetime.datetime.now()
-subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y jp2_test.mp4")
+subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y jp2_test.mp4", shell = True)
 finish = datetime.datetime.now()
 
 render_timer = finish - start
+print("TOTAL FRAMES: " + str(len(sorted_list)))
 print("PROCESSING TIME: " + str(frame_timer))
 print("RENDERING TIME: " + str(render_timer))
 
