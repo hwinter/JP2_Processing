@@ -22,6 +22,7 @@ import os
 import datetime
 import sys
 
+
 def Fits_Index(DIR):
 	fits_list = []
 	count = 0
@@ -60,15 +61,23 @@ if os.path.isdir("numbered") == False:
 # 	sorted_number += 1
 
 # Using multiprocess.pool() to parallelize our frame rendering
+start = datetime.datetime.now()
 
 pool = Pool()
 pool.map(Colorize, sorted_list)
 pool.close()
 pool.join()
 
-supbrocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y jp2_test.mp4")
+finish = datetime.datetime.now()
+frame_timer = finish - start
 
+start = datetime.datetime.now()
+subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y jp2_test.mp4")
+finish = datetime.datetime.now()
 
+render_timer = finish - start
+print("PROCESSING TIME: " + str(frame_timer))
+print("RENDERING TIME: " + str(render_timer))
 
 
 
