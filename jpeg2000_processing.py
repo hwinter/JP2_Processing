@@ -42,7 +42,7 @@ def AIA_DecimateIndex(LIST, SKIP):
 def Colorize(FILE):
 	sorted_number = sorted_list.index(FILE)
 	print("CONVERTING: " + str(FILE))
-	subprocess.call("convert " + str(FILE) + " gradient_ice-sea.png -clut numbered/" + str(sorted_number) + ".png", shell = True)
+	subprocess.call("convert " + str(FILE) + " gradient_304.png -clut numbered/" + str(sorted_number) + ".png", shell = True)
 	
 
 
@@ -59,7 +59,7 @@ if os.path.isdir("numbered") == False:
 # 	subprocess.call("convert " + str(f) + " gradient_ice-sea.png -clut numbered/" + str(sorted_number) + ".png", shell = True)
 # 	sorted_number += 1
 
-		# Using multiprocess.pool() to parallelize our frame rendering
+# Using multiprocess.pool() to parallelize our frame rendering
 
 pool = Pool()
 pool.map(Colorize, sorted_list)
@@ -67,3 +67,9 @@ pool.close()
 pool.join()
 
 supbrocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y jp2_test.mp4")
+
+
+
+
+
+
