@@ -43,7 +43,7 @@ def AIA_DecimateIndex(LIST, SKIP):
 def Colorize(FILE):
 	sorted_number = sorted_list.index(FILE)
 	print("CONVERTING: " + str(FILE))
-	subprocess.call("convert " + str(FILE) + " gradient_ice-sea.png -clut numbered/" + str(sorted_number) + ".png", shell = True)
+	subprocess.call("convert " + str(FILE) + " gradient_304.png -clut numbered/" + str(sorted_number) + ".png", shell = True)
 	
 
 
