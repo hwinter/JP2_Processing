@@ -22,6 +22,10 @@ import os
 import datetime
 import sys
 
+fontpath = "BebasNeue Regular.otf"
+font = ImageFont.truetype(fontpath, 76)
+
+target_wavelengths = ["0094", "0171", "0193", "0211", "0304", "0335"]
 
 def Fits_Index(DIR):
 	fits_list = []
@@ -43,12 +47,55 @@ def AIA_DecimateIndex(LIST, SKIP):
 def Colorize(FILE):
 	sorted_number = sorted_list.index(FILE)
 	print("CONVERTING: " + str(FILE))
-	subprocess.call("convert " + str(FILE) + " gradient_304.png -clut numbered/" + str(sorted_number) + ".png", shell = True)
-	
+	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
+	subprocess.call("convert " + str(FILE) + " gradient_304.png -clut " + convert_out, shell = True)
+	Annotate(convert_out)
+
+def Annotate(FILE):
+	print("FILE: " + str(FILE))
+
+	date = 0
+	time = 0
+	wavelength = 0
+
+	b,g,r,a = 191,191,191,0
+	# framenum = database.index(FILE)
+	# framenum = str(framenum).zfill(4)
+
+	# print("FRAMENUM: " + str(framenum))
+
+	print("ANNOTATING: " + str(FILE))
+				
+	date = str(FILE).split("__")[0].split("/")[1].replace("_", "-")
+	time = str((FILE).split("__")[1])[:8].replace("_", ":")
+	# date = "DATE"
+	# time = "TIME"
+	img = FILE
+
+	# 	#Convert our image from a numpy array to something PIL can deal with
+
+	img_pil = Image.open(FILE)
+	# 	# Convert to RGB mode. Do I want to do this? I should maybe try RGBA
+	if img_pil.mode != "RGB":
+		img_pil = img_pil.convert("RGB")
+	#	# Render it to a frame
+	draw = ImageDraw.Draw(img_pil)
+	# 	# #Put our text on it
+	print("applying timestamp... ")
+	draw.text((3468, 386), str(date), font = font, fill = (b, g, r, a))
+	draw.text((3468, 456), str(time), font = font, fill = (b, g, r, a))
+	draw.text((102, 930), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
+	# 	# #Turn it back in to a numpy array for OpenCV to deal with
+	frameStamp = np.array(img_pil)
+	annotate_out = "numbered/" + FILE.split("-")[1]
+
+	# print("printing frame: " + str(framenum))
+	cv2.imwrite(annotate_out, cv2.cvtColor(frameStamp, cv2.COLOR_RGB2BGR)) #It's critical to convert from BGR to RGB here, because OpenCV sees things differently from everyone else
 
 
-sorted_list = Fits_Index("working")
-sorted_list = AIA_DecimateIndex(sorted_list, 16)
+
+sorted_list = Fits_Index("304")
+# sorted_list = AIA_DecimateIndex(sorted_list, 16)
 
 if os.path.isdir("numbered") == False:
 	subprocess.call("mkdir numbered" , shell = True)
@@ -56,9 +103,8 @@ if os.path.isdir("numbered") == False:
 # sorted_number = 0
 
 # for f in sorted_list:
-# 	print("CONVERTING: " + str(f))
-# 	subprocess.call("convert " + str(f) + " gradient_ice-sea.png -clut numbered/" + str(sorted_number) + ".png", shell = True)
-# 	sorted_number += 1
+# 	Colorize(f)
+
 
 # Using multiprocess.pool() to parallelize our frame rendering
 start = datetime.datetime.now()

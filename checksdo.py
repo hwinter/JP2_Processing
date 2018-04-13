@@ -51,7 +51,7 @@ while True:
 	for wlen in target_wavelengths:
 		for file in glob.glob(str(wlen) + "/*.jp2"):
 			file_mod_time = datetime.fromtimestamp(os.stat(file).st_mtime)
-			if(int(str(datetime.today() - file_mod_time).split(":")[0]) > 24): #if a file is more than 24 hours old
+			if(str(datetime.today() - file_mod_time).find("1 day") != -1): #if a file is more than 24 hours old
 				print("PRUNING: " + str(file))
 				os.remove(file)
 
