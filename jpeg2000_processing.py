@@ -25,7 +25,8 @@ import sys
 fontpath = "BebasNeue Regular.otf"
 font = ImageFont.truetype(fontpath, 76)
 
-target_wavelengths = ["0094", "0171", "0193", "0211", "0304", "0335"]
+target_wavelengths = ["94", "171", "193", "211", "304", "335"]
+current_wavelength = ""
 
 def Fits_Index(DIR):
 	fits_list = []
@@ -48,7 +49,7 @@ def Colorize(FILE):
 	sorted_number = sorted_list.index(FILE)
 	print("CONVERTING: " + str(FILE))
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
-	subprocess.call("convert " + str(FILE) + " gradient_304.png -clut " + convert_out, shell = True)
+	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
 	Annotate(convert_out)
 
 def Annotate(FILE):
@@ -71,9 +72,7 @@ def Annotate(FILE):
 	# date = "DATE"
 	# time = "TIME"
 	img = FILE
-
-	# 	#Convert our image from a numpy array to something PIL can deal with
-
+ 
 	img_pil = Image.open(FILE)
 	# 	# Convert to RGB mode. Do I want to do this? I should maybe try RGBA
 	if img_pil.mode != "RGB":
@@ -84,7 +83,7 @@ def Annotate(FILE):
 	print("applying timestamp... ")
 	draw.text((3468, 386), str(date), font = font, fill = (b, g, r, a))
 	draw.text((3468, 456), str(time), font = font, fill = (b, g, r, a))
-	draw.text((102, 930), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
+	draw.text((102, 3685), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
 	# 	# #Turn it back in to a numpy array for OpenCV to deal with
 	frameStamp = np.array(img_pil)
 	annotate_out = "numbered/" + FILE.split("-")[1]
@@ -93,38 +92,44 @@ def Annotate(FILE):
 	cv2.imwrite(annotate_out, cv2.cvtColor(frameStamp, cv2.COLOR_RGB2BGR)) #It's critical to convert from BGR to RGB here, because OpenCV sees things differently from everyone else
 
 
+for wlen in target_wavelengths:
+	sorted_list = Fits_Index(str(wlen))
+	sorted_list = AIA_DecimateIndex(sorted_list, 16)
 
-sorted_list = Fits_Index("304")
-# sorted_list = AIA_DecimateIndex(sorted_list, 16)
+	current_wavelength = wlen
+	
 
-if os.path.isdir("numbered") == False:
-	subprocess.call("mkdir numbered" , shell = True)
+	if os.path.isdir("numbered") == False:
+		subprocess.call("mkdir numbered" , shell = True)
+	else:
+		for file in glob.glob("numbered/*.png"):
+			os.remove(file)
 
-# sorted_number = 0
+	# sorted_number = 0
 
-# for f in sorted_list:
-# 	Colorize(f)
+	# for f in sorted_list:
+	# 	Colorize(f)
 
 
-# Using multiprocess.pool() to parallelize our frame rendering
-start = datetime.datetime.now()
+	# Using multiprocess.pool() to parallelize our frame rendering
+	start = datetime.datetime.now()
 
-pool = Pool()
-pool.map(Colorize, sorted_list)
-pool.close()
-pool.join()
+	pool = Pool()
+	pool.map(Colorize, sorted_list)
+	pool.close()
+	pool.join()
 
-finish = datetime.datetime.now()
-frame_timer = finish - start
+	finish = datetime.datetime.now()
+	frame_timer = finish - start
 
-start = datetime.datetime.now()
-subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y jp2_test.mp4", shell = True)
-finish = datetime.datetime.now()
+	start = datetime.datetime.now()
+	subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y jp2_test_" + str(wlen) + ".mp4", shell = True)
+	finish = datetime.datetime.now()
 
-render_timer = finish - start
-print("TOTAL FRAMES: " + str(len(sorted_list)))
-print("PROCESSING TIME: " + str(frame_timer))
-print("RENDERING TIME: " + str(render_timer))
+	render_timer = finish - start
+	print("TOTAL FRAMES: " + str(len(sorted_list)))
+	print("PROCESSING TIME: " + str(frame_timer))
+	print("RENDERING TIME: " + str(render_timer))
 
 
 
