@@ -123,7 +123,7 @@ for wlen in target_wavelengths:
 	frame_timer = finish - start
 
 	start = datetime.datetime.now()
-	subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y jp2_test_" + str(wlen) + ".mp4", shell = True)
+	subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 20M -pix_fmt yuv420p -y jp2_test_" + str(wlen) + ".mp4", shell = True)
 	finish = datetime.datetime.now()
 
 	render_timer = finish - start
