@@ -94,7 +94,7 @@ def Annotate(FILE):
 
 for wlen in target_wavelengths:
 	sorted_list = Fits_Index(str(wlen))
-	sorted_list = AIA_DecimateIndex(sorted_list, 16)
+	sorted_list = AIA_DecimateIndex(sorted_list, 2)
 
 	current_wavelength = wlen
 	
