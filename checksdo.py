@@ -55,6 +55,7 @@ while True:
 				os.remove(file)
 
 	for wlen in target_wavelengths:
+
 		url = urlout + str(wlen) + "/"
 		windex = target_wavelengths.index(wlen)
 		print("CHECKING: " + str(url))
@@ -65,13 +66,17 @@ while True:
 
 		print("LENGTH: " + str(len(alist)))
 		lenb[windex] = len(alist)
-		new = lenb[windex] - lena[windex]
+
+		if((lenb[windex] - lena[windex]) < 0):
+			lena[windex] = 0
+
+		new = lenb[windex] - lena[windex] #Without the above if statement, When the day changes over, this becomes negative!!
 		print("NEW: " + str(new))
 		if(new > 0):
 			for file in range((lenb[windex] - new), lenb[windex]):
 				subprocess.call("wget -P " + str(wlen) + " " + str(alist[file]), shell = True)
 
-
+	#check every 15 minutes
 
 	sleep(900)
 
