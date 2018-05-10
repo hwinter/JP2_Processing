@@ -74,7 +74,8 @@ while True:
 		print("NEW: " + str(new))
 		if(new > 0):
 			for file in range((lenb[windex] - new), lenb[windex]):
-				subprocess.call("wget -P " + str(wlen) + " " + str(alist[file]), shell = True)
+				if(os.path.isfile(str(wlen) + "/" + alist[file].split("/")[10]) == False):
+					subprocess.call("wget -P " + str(wlen) + " " + str(alist[file]), shell = True)
 
 	#check every 15 minutes
 
