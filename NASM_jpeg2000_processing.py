@@ -192,7 +192,7 @@ pool.map(Colorize, sorted_list)
 pool.close()
 pool.join()
 
-outname = str(datetime.datetime.now()) + ".mp4"
+outname = year + month + day + ".mp4"
 
 subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y " + outname, shell = True)
 
