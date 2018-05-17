@@ -101,7 +101,7 @@ def Annotate(FILE):
 	draw.text((3468, 456), str(time), font = font, fill = (b, g, r, a))
 	draw.text((102, 386), "Lorem Ipsum Dolor Sit", font = font, fill = (b, g, r, a))
 	draw.text((102, 456), "Sed Arctus Incam Hepter Scala", font = font, fill = (b, g, r, a))
-	draw.text((102, 536), "Noli Em Ipicare Vera Solus", font = font, fill = (b, g, r, a))
+	draw.text((102, 526), "Noli Em Ipicare Vera Solus", font = font, fill = (b, g, r, a))
 	draw.text((102, 3685), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
 	# 	# #Turn it back in to a numpy array for OpenCV to deal with
 	frameStamp = np.array(img_pil)
@@ -192,7 +192,9 @@ pool.map(Colorize, sorted_list)
 pool.close()
 pool.join()
 
-outname = year + month + day + ".mp4"
+outname = "20187927.mp4"
+
+print("RENDERING: " + outname)
 
 subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y " + outname, shell = True)
 
