@@ -29,11 +29,11 @@ font = ImageFont.truetype(fontpath, 76)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 current_wavelength = str(input("WAVELENGTH: "))
+year = str(input("YEAR: ")).zfill(4)
+month = str(input("MONTH: ")).zfill(2)
+day = str(input("DAY: ")).zfill(2)
 
 def buildURL():
-	year = str(input("YEAR: ")).zfill(4)
-	month = str(input("MONTH: ")).zfill(2)
-	day = str(input("DAY: ")).zfill(2)
 	wlen = current_wavelength
 	urlout = "http://jsoc.stanford.edu/data/aia/images/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
 	return(urlout)
@@ -128,7 +128,7 @@ def Add_Earth(FILE):
 
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.7, 0.7), relative = True).resize(lambda t : 1-0.01*t)
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_position(lambda t: (0.85-t*0.1, 0.85-t*0.1), relative = True).resize(0.071)
-	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.1, 0.88), relative = True).resize(0.071) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
+	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.024, 0.88), relative = True).resize(0.091) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
 
 
 	#The above statement is the meat and potatos of this script.
@@ -192,7 +192,7 @@ pool.map(Colorize, sorted_list)
 pool.close()
 pool.join()
 
-outname = "20187927.mp4"
+outname = year + month + day + ".mp4"
 
 print("RENDERING: " + outname)
 
