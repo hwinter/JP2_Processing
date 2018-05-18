@@ -107,7 +107,7 @@ def Annotate(FILE):
 	frameStamp = np.array(img_pil)
 	annotate_out = "numbered/" + FILE.split("-")[1]
 
-	# print("printing frame: " + str(framenum))
+	print("printing frame: " + annotate_out)
 	cv2.imwrite(annotate_out, cv2.cvtColor(frameStamp, cv2.COLOR_RGB2BGR)) #It's critical to convert from BGR to RGB here, because OpenCV sees things differently from everyone else
 
 def Add_Earth(FILE):
@@ -128,7 +128,7 @@ def Add_Earth(FILE):
 
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.7, 0.7), relative = True).resize(lambda t : 1-0.01*t)
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_position(lambda t: (0.85-t*0.1, 0.85-t*0.1), relative = True).resize(0.071)
-	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.1, 0.88), relative = True).resize(0.0293) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
+	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.1, 0.88), relative = True).resize(0.071) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
 
 
 	#The above statement is the meat and potatos of this script.
