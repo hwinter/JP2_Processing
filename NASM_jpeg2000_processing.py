@@ -64,6 +64,7 @@ def AIA_DecimateIndex(LIST, SKIP):
 def Colorize(FILE):
 	sorted_number = sorted_list.index(FILE)
 	print("CONVERTING: " + str(FILE))
+	subprocess.call('ffmpeg -i 'FILE' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" 'FILE'', shell = True)
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
 	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
 	Annotate(convert_out)
@@ -192,7 +193,7 @@ pool.map(Colorize, sorted_list)
 pool.close()
 pool.join()
 
-outname = year + month + day + ".mp4"
+outname = "NASM_" + year + month + day + ".mp4"
 
 print("RENDERING: " + outname)
 
@@ -205,7 +206,7 @@ finish = datetime.datetime.now()
 
 render_timer = finish - start
 print("TOTAL FRAMES: " + str(len(sorted_list)))
-print("PROCESSING TIME: " + str(frame_timer))
+# print("PROCESSING TIME: " + str(frame_timer))
 print("RENDERING TIME: " + str(render_timer))
 
 
