@@ -64,9 +64,9 @@ def AIA_DecimateIndex(LIST, SKIP):
 def Colorize(FILE):
 	sorted_number = sorted_list.index(FILE)
 	print("CONVERTING: " + str(FILE))
-	subprocess.call('ffmpeg -i ' + str(FILE) + ' -vf "scale=(iw*sar)*min(4096/(iw*sar)\,3456/ih):ih*min(4096/(iw*sar)\,3456/ih), pad=4096:3456:(4096-iw*min(4096/iw\,3456/ih))/2:(3456-ih*min(3456/iw\,3456/ih))/2:black"  -y ' + str(FILE), shell = True)
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
 	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
+	subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4096/(iw*sar)\,3456/ih):ih*min(4096/(iw*sar)\,3456/ih), pad=4096:3456:(4096-iw*min(4096/iw\,3456/ih))/2:(3456-ih*min(3456/iw\,3456/ih))/2"  -y ' + str(convert_out), shell = True)
 	Annotate(convert_out)
 
 def Annotate(FILE):
