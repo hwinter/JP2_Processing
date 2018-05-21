@@ -103,7 +103,7 @@ def Annotate(FILE):
 	draw.text((102, 386), "Lorem Ipsum Dolor Sit", font = font, fill = (b, g, r, a))
 	draw.text((102, 456), "Sed Arctus Incam Hepter Scala", font = font, fill = (b, g, r, a))
 	draw.text((102, 526), "Noli Em Ipicare Vera Solus", font = font, fill = (b, g, r, a))
-	draw.text((102, 3078), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
+	draw.text((102, 3100), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
 	# 	# #Turn it back in to a numpy array for OpenCV to deal with
 	frameStamp = np.array(img_pil)
 	annotate_out = "numbered/" + FILE.split("-")[1]
