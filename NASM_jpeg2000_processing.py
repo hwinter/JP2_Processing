@@ -64,6 +64,7 @@ def AIA_DecimateIndex(LIST, SKIP):
 def Colorize(FILE):
 	sorted_number = sorted_list.index(FILE)
 	print("CONVERTING: " + str(FILE))
+	subprocess.call('ffmpeg -i ' + str(FILE) + ' -vf "scale=(iw*sar)*min(4096/(iw*sar)\,3456/ih):ih*min(4096/(iw*sar)\,3456/ih), pad=4096:3456:(4096-iw*min(4096/iw\,3456/ih))/2:(3456-ih*min(3456/iw\,3456/ih))/2" -y ' + str(FILE), shell = True)
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
 	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
 	Annotate(convert_out)
@@ -198,7 +199,7 @@ print("RENDERING: " + outname)
 
 subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y " + outname, shell = True)
 Add_Earth(outname)
-subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
+# subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
 
 finish = datetime.datetime.now()
 
