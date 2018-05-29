@@ -99,8 +99,8 @@ def Annotate(FILE):
 	draw = ImageDraw.Draw(img_pil)
 	# 	# #Put our text on it
 	print("applying text... ")
-	draw.text((4468, 386), str(date), font = font, fill = (b, g, r, a))
-	draw.text((4468, 456), str(time), font = font, fill = (b, g, r, a))
+	draw.text((4268, 386), str(date), font = font, fill = (b, g, r, a))
+	draw.text((4268, 456), str(time), font = font, fill = (b, g, r, a))
 	draw.text((102, 386), "Lorem Ipsum Dolor Sit", font = font, fill = (b, g, r, a))
 	draw.text((102, 456), "Sed Arctus Incam Hepter Scala", font = font, fill = (b, g, r, a))
 	draw.text((102, 526), "Noli Em Ipicare Vera Solus", font = font, fill = (b, g, r, a))
