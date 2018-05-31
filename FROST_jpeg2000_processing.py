@@ -24,14 +24,21 @@ import datetime
 import sys
 import requests
 
-fontpath = "ReplicaFrostStencil-Regular.otf"
-font = ImageFont.truetype(fontpath, 76)
+fontpath_header = "ReplicaFrostStencil-Regular.otf"
+header_font = ImageFont.truetype(fontpath_header, 76)
+
+fontpath_body = "ReplicaStd-Regular.otf"
+body_font = ImageFont.truetype(fontpath_body, 56)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 current_wavelength = str(input("WAVELENGTH: "))
 year = str(input("YEAR: ")).zfill(4)
 month = str(input("MONTH: ")).zfill(2)
 day = str(input("DAY: ")).zfill(2)
+
+line1 = str(input("BODY LINE 1: "))
+line2 = str(input("BODY LINE 2: "))
+line3 = str(input("BODY LINE 3: "))
 
 def buildURL():
 	wlen = current_wavelength
@@ -99,12 +106,12 @@ def Annotate(FILE):
 	draw = ImageDraw.Draw(img_pil)
 	# 	# #Put our text on it
 	print("applying text... ")
-	draw.text((4268, 386), str(date), font = font, fill = (b, g, r, a))
-	draw.text((4268, 456), str(time), font = font, fill = (b, g, r, a))
-	draw.text((102, 386), "Lorem Ipsum Dolor Sit", font = font, fill = (b, g, r, a))
-	draw.text((102, 456), "Sed Arctus Incam Hepter Scala", font = font, fill = (b, g, r, a))
-	draw.text((102, 526), "Noli Em Ipicare Vera Solus", font = font, fill = (b, g, r, a))
-	draw.text((102, 3700), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
+	draw.text((4268, 386), str(date), font = header_font, fill = (b, g, r, a))
+	draw.text((4268, 456), str(time), font = header_font, fill = (b, g, r, a))
+	draw.text((102, 386), str(line1), font = body_font, fill = (b, g, r, a))
+	draw.text((102, 456), str(line2), font = body_font, fill = (b, g, r, a))
+	draw.text((102, 526), str(line3), font = body_font, fill = (b, g, r, a))
+	draw.text((102, 3700), "Earth Added for Size Scale", font = body_font, fill = (b, g, r, a))
 	# 	# #Turn it back in to a numpy array for OpenCV to deal with
 	frameStamp = np.array(img_pil)
 	annotate_out = "numbered/" + FILE.split("-")[1]
