@@ -39,7 +39,7 @@ print("BODY (ctrl-D to end): ")
 lines = []
 
 while(True):
-	new_line = raw_input(":")
+	new_line = raw_input()
 	lines.append(str(new_line))
 	if(new_line == ""):
 		break
@@ -112,8 +112,8 @@ def Annotate(FILE):
 	print("applying text... ")
 	draw.text((4268, 386), str(date), font = header_font, fill = (b, g, r, a))
 	draw.text((4268, 456), str(time), font = header_font, fill = (b, g, r, a))
+	y = 386
 	for line in lines:
-		y = 386
 		draw.text((102, y), str(lines[lines.index(line)]), font = body_font, fill = (b, g, r, a))
 		y = y + 70
 
