@@ -39,11 +39,10 @@ print("BODY (ctrl-D to end): ")
 lines = []
 
 while(True):
-	new_line = raw_input()
+	new_line = raw_input(":")
 	lines.append(str(new_line))
 	if(new_line == ""):
 		break
-	
 
 def buildURL():
 	wlen = current_wavelength
@@ -115,9 +114,9 @@ def Annotate(FILE):
 	draw.text((4268, 456), str(time), font = header_font, fill = (b, g, r, a))
 	for line in lines:
 		y = 386
-		draw.text((102, y), str(lines), font = body_font, fill = (b, g, r, a))
+		draw.text((102, y), str(lines[line]), font = body_font, fill = (b, g, r, a))
 		y = y + 70
-	
+
 	# draw.text((102, 456), str(line2), font = body_font, fill = (b, g, r, a))
 	# draw.text((102, 526), str(line3), font = body_font, fill = (b, g, r, a))
 	draw.text((102, 3700), "Earth Added for Size Scale", font = body_font, fill = (b, g, r, a))
