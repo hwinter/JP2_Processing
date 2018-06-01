@@ -36,9 +36,9 @@ year = str(input("YEAR: ")).zfill(4)
 month = str(input("MONTH: ")).zfill(2)
 day = str(input("DAY: ")).zfill(2)
 
-line1 = input("BODY LINE 1: ")
-line2 = input("BODY LINE 2: ")
-line3 = input("BODY LINE 3: ")
+line1 = raw_input("BODY LINE 1: ")
+line2 = raw_input("BODY LINE 2: ")
+line3 = raw_input("BODY \n LINE 3: ")
 
 def buildURL():
 	wlen = current_wavelength
