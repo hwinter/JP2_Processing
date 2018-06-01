@@ -35,8 +35,8 @@ current_wavelength = str(input("WAVELENGTH: "))
 year = str(input("YEAR: ")).zfill(4)
 month = str(input("MONTH: ")).zfill(2)
 day = str(input("DAY: ")).zfill(2)
-
-line1 = raw_input("BODY (ctrl-D to end): ")
+print("BODY (ctrl-D to end): ")
+line1 = sys.stdin.readlines()
 
 
 def buildURL():
