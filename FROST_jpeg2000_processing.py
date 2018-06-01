@@ -36,9 +36,8 @@ year = str(input("YEAR: ")).zfill(4)
 month = str(input("MONTH: ")).zfill(2)
 day = str(input("DAY: ")).zfill(2)
 
-line1 = raw_input("BODY LINE 1: ")
-line2 = raw_input("BODY LINE 2: ")
-line3 = raw_input("BODY \n LINE 3: ")
+line1 = raw_input("BODY (ctrl-D to end): ")
+
 
 def buildURL():
 	wlen = current_wavelength
@@ -109,8 +108,8 @@ def Annotate(FILE):
 	draw.text((4268, 386), str(date), font = header_font, fill = (b, g, r, a))
 	draw.text((4268, 456), str(time), font = header_font, fill = (b, g, r, a))
 	draw.text((102, 386), str(line1), font = body_font, fill = (b, g, r, a))
-	draw.text((102, 456), str(line2), font = body_font, fill = (b, g, r, a))
-	draw.text((102, 526), str(line3), font = body_font, fill = (b, g, r, a))
+	# draw.text((102, 456), str(line2), font = body_font, fill = (b, g, r, a))
+	# draw.text((102, 526), str(line3), font = body_font, fill = (b, g, r, a))
 	draw.text((102, 3700), "Earth Added for Size Scale", font = body_font, fill = (b, g, r, a))
 	# 	# #Turn it back in to a numpy array for OpenCV to deal with
 	frameStamp = np.array(img_pil)
