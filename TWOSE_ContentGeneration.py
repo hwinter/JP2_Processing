@@ -72,7 +72,7 @@ def Annotate(FILE):
 				
 	date = str(FILE).split("__")[0].split("/")[1].replace("_", "-")
 	time = str((FILE).split("__")[1])[:8].replace("_", ":")
-	wlen = file.split(".")[0].split("__")[2].split("_")[3]
+	wlen = str(FILE).split(".")[0].split("__")[2].split("_")[3]
 	# date = "DATE"
 	# time = "TIME"
 	img = FILE
