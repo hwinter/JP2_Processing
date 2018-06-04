@@ -24,18 +24,25 @@ import datetime
 import sys
 import requests
 
-fontpath = "BebasNeue Regular.otf"
-font = ImageFont.truetype(fontpath, 76)
+fontpath_header = "BebasNeue Regular.otf"
+header_font = ImageFont.truetype(fontpath_header, 76)
+
+fontpath_body = "BebasNeue Regular.otf"
+body_font = ImageFont.truetype(fontpath_body, 56)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 current_wavelength = str(input("WAVELENGTH: "))
 year = str(input("YEAR: ")).zfill(4)
 month = str(input("MONTH: ")).zfill(2)
 day = str(input("DAY: ")).zfill(2)
+print("BODY (ctrl-D to end): ")
+lines = []
 
-line1 = str(input("BODY LINE 1: "))
-line2 = str(input("BODY LINE 2: "))
-line3 = str(input("BODY LINE 3: "))
+while(True):
+	new_line = raw_input()
+	lines.append(str(new_line))
+	if(new_line == ""):
+		break
 
 def buildURL():
 	wlen = current_wavelength
@@ -70,6 +77,7 @@ def Colorize(FILE):
 	print("CONVERTING: " + str(FILE))
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
 	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
+	#black magic ffmpeg call to change the aspect ratio of each frame
 	subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
 	Annotate(convert_out)
 
@@ -102,13 +110,16 @@ def Annotate(FILE):
 	draw = ImageDraw.Draw(img_pil)
 	# 	# #Put our text on it
 	print("applying text... ")
-	
-	draw.text((3468, 386), str(date), font = font, fill = (b, g, r, a))
-	draw.text((3468, 456), str(time), font = font, fill = (b, g, r, a))
-	draw.text((102, 386), line1, font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
-	draw.text((102, 456), line2, font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
-	draw.text((102, 526), line3, font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
-	draw.text((102, 3700), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
+	draw.text((4268, 386), str(date), font = header_font, fill = (b, g, r, a))
+	draw.text((4268, 456), str(time), font = header_font, fill = (b, g, r, a))
+	y = 386
+	for line in lines:
+		draw.text((102, y), str(lines[lines.index(line)]), font = body_font, fill = (b, g, r, a))
+		y = y + 70
+
+	# draw.text((102, 456), str(line2), font = body_font, fill = (b, g, r, a))
+	# draw.text((102, 526), str(line3), font = body_font, fill = (b, g, r, a))
+	draw.text((102, 3700), "Earth Added for Size Scale", font = body_font, fill = (b, g, r, a))
 	# 	# #Turn it back in to a numpy array for OpenCV to deal with
 	frameStamp = np.array(img_pil)
 	annotate_out = "numbered/" + FILE.split("-")[1]
