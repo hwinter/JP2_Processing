@@ -204,54 +204,51 @@ def AIA_AddInfographic(BASE, OVERLAY, OUTNAME): #BASE: Output of AIA_GenerateBac
 	# Release everything if job is finished
 	cap.release()
 
-def Make_JP2_Videos():
-	for wlen in target_wavelengths:
-		sorted_list = Fits_Index(str(wlen))
-		sorted_list = AIA_DecimateIndex(sorted_list, 8)
 
-		current_wavelength = wlen
-		
+for wlen in target_wavelengths:
+	sorted_list = Fits_Index(str(wlen))
+	sorted_list = AIA_DecimateIndex(sorted_list, 8)
 
-		if os.path.isdir("numbered") == False:
-			subprocess.call("mkdir numbered" , shell = True)
-		else:
-			for file in glob.glob("numbered/*.png"):
-				os.remove(file)
+	current_wavelength = wlen
+	
 
-		# sorted_number = 0
+	if os.path.isdir("numbered") == False:
+		subprocess.call("mkdir numbered" , shell = True)
+	else:
+		for file in glob.glob("numbered/*.png"):
+			os.remove(file)
 
-		# for f in sorted_list:
-		# 	Colorize(f)
+	# sorted_number = 0
 
-
-		# Using multiprocess.pool() to parallelize our frame rendering
-		start = datetime.datetime.now()
-
-		pool = Pool()
-		pool.map(Colorize, sorted_list)
-		pool.close()
-		pool.join()
-
-		finish = datetime.datetime.now()
-		frame_timer = finish - start
-
-		start = datetime.datetime.now()
-		subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y working/wav_vids/" + str(wlen) + ".mp4", shell = True)
-		"""
-		The range of the CRF scale is 0–51, where 0 is lossless, 23 is the default, and 51 is worst quality possible. 
-		A lower value generally leads to higher quality, and a subjectively sane range is 17–28. 
-		Consider 17 or 18 to be visually lossless or nearly so; it should look the same or nearly the same as the input but it isn't technically lossless.
-		"""
-		finish = datetime.datetime.now()
-
-		render_timer = finish - start
-		print("TOTAL FRAMES: " + str(len(sorted_list)))
-		print("PROCESSING TIME: " + str(frame_timer))
-		print("RENDERING TIME: " + str(render_timer))
+	# for f in sorted_list:
+	# 	Colorize(f)
 
 
+	# Using multiprocess.pool() to parallelize our frame rendering
+	start = datetime.datetime.now()
 
-Make_JP2_Videos()
+	pool = Pool()
+	pool.map(Colorize, sorted_list)
+	pool.close()
+	pool.join()
+
+	finish = datetime.datetime.now()
+	frame_timer = finish - start
+
+	start = datetime.datetime.now()
+	subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y working/wav_vids/" + str(wlen) + ".mp4", shell = True)
+	"""
+	The range of the CRF scale is 0–51, where 0 is lossless, 23 is the default, and 51 is worst quality possible. 
+	A lower value generally leads to higher quality, and a subjectively sane range is 17–28. 
+	Consider 17 or 18 to be visually lossless or nearly so; it should look the same or nearly the same as the input but it isn't technically lossless.
+	"""
+	finish = datetime.datetime.now()
+
+	render_timer = finish - start
+	print("TOTAL FRAMES: " + str(len(sorted_list)))
+	print("PROCESSING TIME: " + str(frame_timer))
+	print("RENDERING TIME: " + str(render_timer))
+
 
 # Generate a base video composite -> add graphical overlay -> Repeat. Each overlay is numerically matched to the base video, to synchronize temperature data.
 
