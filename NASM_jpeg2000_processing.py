@@ -36,8 +36,9 @@ year = str(input("YEAR: ")).zfill(4)
 month = str(input("MONTH: ")).zfill(2)
 day = str(input("DAY: ")).zfill(2)
 print("BODY (ctrl-D to end): ")
-lines = []
 
+#Take input for descriptive text
+lines = []
 while(True):
 	new_line = raw_input()
 	lines.append(str(new_line))
@@ -175,7 +176,7 @@ print("LENGTH: " + str(len(alist)))
 frameskip = input("TIMELAPSE: ")
 alist = AIA_DecimateIndex(alist, frameskip)
 print(alist[len(alist)-1])
-# wait = input("WAIT...")
+
 
 for file in range(0, len(alist)):
 	check = alist[file]
@@ -213,7 +214,7 @@ outname = "NASM_" + year + month + day + ".mp4"
 
 print("RENDERING: " + outname)
 
-subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y " + outname, shell = True)
+subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y /complete/" + outname, shell = True)
 Add_Earth(outname)
 # subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
 
