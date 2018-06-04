@@ -27,7 +27,6 @@ fontpath = "BebasNeue Regular.otf"
 font = ImageFont.truetype(fontpath, 76)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
-# temperatures_celsius = ["100,000° Celsius", "1,000,000° Celsius", "1,222,204° Celsius", "2,000,000° Celsius", "2,500,000° Celsius", "6,000,000° Celsius"]
 temperatures_celsius = ["100,000 degrees Celsius", "1,000,000 degrees Celsius", "1,222,204 degrees Celsius", "2,000,000 degrees Celsius", "2,500,000 degrees Celsius", "6,000,000 degrees Celsius"]
 
 current_wavelength = ""
