@@ -128,8 +128,8 @@ def Add_Earth(FILE):
 	main_video.extend( [earth_g] )
 	out_video = CompositeVideoClip(main_video)
 
-	out_video.set_duration(mlength).write_videofile("o_" + str(FILE), fps = 24, threads = 4, audio = False, progress_bar = False)
-	os.rename("o_" + str(FILE),FILE)
+	out_video.set_duration(mlength).write_videofile(str(FILE), fps = 24, threads = 4, audio = False, progress_bar = False)
+	# os.rename("o_" + str(FILE),FILE)
 
 ##FROM AIA
 def Video_List():
