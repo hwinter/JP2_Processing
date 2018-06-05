@@ -238,8 +238,8 @@ for wlen in target_wavelengths:
 	frame_timer = finish - start
 
 	start = datetime.datetime.now()
-	subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y working/wav_vids/" + str(wlen) + ".mp4", shell = True)
-	Add_Earth("working/wav_vids/" + str(wlen) + ".mp4")
+	subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y working/wav_vids/" + str(wlen).zfill(4) + ".mp4", shell = True)
+	Add_Earth("working/wav_vids/" + str(wlen).zfill(4) + ".mp4")
 	"""
 	The range of the CRF scale is 0–51, where 0 is lossless, 23 is the default, and 51 is worst quality possible. 
 	A lower value generally leads to higher quality, and a subjectively sane range is 17–28. 
@@ -261,12 +261,12 @@ vlist = AIA_ArrangeByTemp(vlist)
 print("SORTED: " + str(vlist))
 
 # Take all the clips we've generated, and stitch them in to one long video.
-clip1 = VideoFileClip("working/wav_vids/" + str(vlist[0]))
-clip2 = VideoFileClip("working/wav_vids/" + str(vlist[1]))
-clip3 = VideoFileClip("working/wav_vids/" + str(vlist[2]))
-clip4 = VideoFileClip("working/wav_vids/" + str(vlist[3]))
-clip5 = VideoFileClip("working/wav_vids/" + str(vlist[4]))
-clip6 = VideoFileClip("working/wav_vids/" + str(vlist[5]))
+clip1 = VideoFileClip(str(vlist[0]))
+clip2 = VideoFileClip(str(vlist[1]))
+clip3 = VideoFileClip(str(vlist[2]))
+clip4 = VideoFileClip(str(vlist[3]))
+clip5 = VideoFileClip(str(vlist[4]))
+clip6 = VideoFileClip(str(vlist[5]))
 
 final_outname = str(year) + "_" + str(month) + "_" + str(day) + "_TWOSE_VideoWall_Concatenated.mp4"
 
