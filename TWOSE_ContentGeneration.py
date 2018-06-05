@@ -53,6 +53,8 @@ def Colorize(FILE):
 	print("CONVERTING: " + str(FILE))
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
 	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
+	subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
+
 	Annotate(convert_out)
 
 def Annotate(FILE):
@@ -116,7 +118,7 @@ def Add_Earth(FILE):
 
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.7, 0.7), relative = True).resize(lambda t : 1-0.01*t)
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_position(lambda t: (0.85-t*0.1, 0.85-t*0.1), relative = True).resize(0.071)
-	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.1, 0.88), relative = True).resize(0.07163) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
+	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((102, 3635), relative = False).resize(0.07163) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
 
 
 	#The above statement is the meat and potatos of this script.
@@ -129,7 +131,7 @@ def Add_Earth(FILE):
 	out_video = CompositeVideoClip(main_video)
 
 	out_video.set_duration(mlength).write_videofile(str(FILE).split(".")[0] + "_.mp4", fps = 24, threads = 2, audio = False, progress_bar = True)
-	os.rename(str(FILE).split(".") + "_.mp4", FILE)
+	os.rename(str(FILE).split(".")[0] + "_.mp4", FILE)
 
 ##FROM AIA
 def Video_List():
