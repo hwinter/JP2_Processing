@@ -28,7 +28,7 @@ fontpath = "BebasNeue Regular.otf"
 font = ImageFont.truetype(fontpath, 76)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
-temperatures_celsius = ["100,000° Celsius", "1,000,000° Celsius", "1,222,204° Celsius", "2,000,000° Celsius", "2,500,000° Celsius", "6,000,000° Celsius"]
+temperatures_celsius = ["6,000,000 degrees Celsius", "1,000,000 degrees Celsius", "1,222,200 degrees Celsius", "2,000,000 degrees Celsius", "100,000 degrees Celsius", "2,500,000 degrees Celsius"]
 current_wavelength = ""
 
 def Fits_Index(DIR):
@@ -86,7 +86,7 @@ def Annotate(FILE):
 	# 	# #Put our text on it
 	print("applying timestamp... ")
 	draw.text((374, 228), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
-	draw.text((374, 288), temperatures_celsius[target_wavelengths.index(wlen)], font = ImageFont.truetype(fontpath, 60), fill = (b, g, r, a))
+	draw.text((374, 306), temperatures_celsius[target_wavelengths.index(wlen)], font = ImageFont.truetype(fontpath, 72), fill = (b, g, r, a))
 	draw.text((3468, 306), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	draw.text((3468, 386), str(date), font = font, fill = (b, g, r, a))
 	draw.text((3468, 456), str(time), font = font, fill = (b, g, r, a))
