@@ -87,8 +87,8 @@ def Annotate(FILE):
 	draw = ImageDraw.Draw(img_pil)
 	# 	# #Put our text on it
 	print("applying timestamp... ")
-	draw.text((374, 228), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
-	draw.text((374, 306), temperatures_celsius[target_wavelengths.index(wlen)], font = ImageFont.truetype(fontpath, 72), fill = (b, g, r, a))
+	draw.text((102, 306), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
+	draw.text((102, 386), temperatures_celsius[target_wavelengths.index(wlen)], font = font, fill = (b, g, r, a))
 	draw.text((3468, 306), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	draw.text((3468, 386), str(date), font = font, fill = (b, g, r, a))
 	draw.text((3468, 456), str(time), font = font, fill = (b, g, r, a))
