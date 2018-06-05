@@ -86,8 +86,8 @@ def Annotate(FILE):
 	# 	# #Put our text on it
 	print("applying timestamp... ")
 	draw.text((374, 228), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
-	draw.text((396, 228), temperatures_celsius[target_wavelengths.index(wlen)], font = ImageFont.truetype(fontpath, 60), fill = (b, g, r, a))
-	draw.text((3468, 316), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
+	draw.text((374, 288), temperatures_celsius[target_wavelengths.index(wlen)], font = ImageFont.truetype(fontpath, 60), fill = (b, g, r, a))
+	draw.text((3468, 306), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	draw.text((3468, 386), str(date), font = font, fill = (b, g, r, a))
 	draw.text((3468, 456), str(time), font = font, fill = (b, g, r, a))
 	draw.text((102, 3685), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
@@ -134,7 +134,7 @@ def Add_Earth(FILE):
 ##FROM AIA
 def Video_List():
 	videolist = []
-	for f in sorted(glob.glob("/working/wav_vids/*.mp4")):
+	for f in sorted(glob.glob("working/wav_vids/*.mp4")):
 		videolist.append(str(f))
 
 	return videolist
@@ -237,6 +237,7 @@ for wlen in target_wavelengths:
 
 	start = datetime.datetime.now()
 	subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y working/wav_vids/" + str(wlen) + ".mp4", shell = True)
+	Add_Earth("working/wav_vids/" + str(wlen) + ".mp4")
 	"""
 	The range of the CRF scale is 0–51, where 0 is lossless, 23 is the default, and 51 is worst quality possible. 
 	A lower value generally leads to higher quality, and a subjectively sane range is 17–28. 
@@ -253,7 +254,9 @@ for wlen in target_wavelengths:
 # Generate a base video composite -> add graphical overlay -> Repeat. Each overlay is numerically matched to the base video, to synchronize temperature data.
 
 vlist = Video_List()
+print("VLIST: " + str(vlist))
 vlist = AIA_ArrangeByTemp(vlist)
+print("SORTED: " + str(vlist))
 
 # Take all the clips we've generated, and stitch them in to one long video.
 clip1 = VideoFileClip("working/wav_vids/" + str(vlist[0]))
