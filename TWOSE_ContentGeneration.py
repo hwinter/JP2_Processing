@@ -89,9 +89,9 @@ def Annotate(FILE):
 	# print("applying timestamp... ")
 	draw.text((102, 306), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	draw.text((102, 386), temperatures_celsius[target_wavelengths.index(wlen)], font = font, fill = (b, g, r, a))
-	draw.text((3668, 306), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
-	draw.text((3668, 386), str(date), font = font, fill = (b, g, r, a))
-	draw.text((3468, 456), str(time), font = font, fill = (b, g, r, a))
+	draw.text((3868, 306), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
+	draw.text((3868, 386), str(date), font = font, fill = (b, g, r, a))
+	draw.text((3868, 456), str(time), font = font, fill = (b, g, r, a))
 	draw.text((102, 3705), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
 	# 	# #Turn it back in to a numpy array for OpenCV to deal with
 	frameStamp = np.array(img_pil)
