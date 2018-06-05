@@ -116,7 +116,7 @@ def Add_Earth(FILE):
 
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.7, 0.7), relative = True).resize(lambda t : 1-0.01*t)
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_position(lambda t: (0.85-t*0.1, 0.85-t*0.1), relative = True).resize(0.071)
-	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.1, 0.88), relative = True).resize(0.02276) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
+	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.1, 0.88), relative = True).resize(0.07163) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
 
 
 	#The above statement is the meat and potatos of this script.
@@ -128,7 +128,7 @@ def Add_Earth(FILE):
 	main_video.extend( [earth_g] )
 	out_video = CompositeVideoClip(main_video)
 
-	out_video.set_duration(mlength).write_videofile(str(FILE), fps = 24, threads = 4, audio = False, progress_bar = False)
+	out_video.set_duration(mlength).write_videofile(str(FILE), fps = 24, threads = 2, audio = False, progress_bar = True)
 	# os.rename("o_" + str(FILE),FILE)
 
 ##FROM AIA
