@@ -24,6 +24,12 @@ import datetime
 import sys
 import requests
 
+global_date = datetime.datetime.now()
+global_date = str(global_date)
+year = global_date.split("-")[0]
+month = global_date.split("-")[1]
+day = str(int(global_date.split("-")[2].split(" ")[0]) - 1).zfill(2)
+
 fontpath = "BebasNeue Regular.otf"
 font = ImageFont.truetype(fontpath, 76)
 
