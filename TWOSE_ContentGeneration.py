@@ -219,6 +219,7 @@ for wlen in target_wavelengths:
 
 	current_wavelength = wlen
 	
+	subprocess.call("rm " + str(wlen) + "/*.png", shell = True) #purge PNG files from previous runs. This is less than ideal, but neccessary until we solve the problem of shifting timeframes and corresponding frame numbers
 
 	if os.path.isdir("numbered") == False:
 		subprocess.call("mkdir numbered" , shell = True)
@@ -277,7 +278,7 @@ clip6 = VideoFileClip(str(vlist[5]))
 final_outname = str(year) + "_" + str(month) + "_" + str(day) + "_TWOSE_VideoWall_Concatenated.mp4"
 
 final_clip = concatenate_videoclips([clip6, clip5.crossfadein(1), clip4.crossfadein(1), clip3.crossfadein(1), clip2.crossfadein(1), clip1.crossfadein(1)], padding = -1, method = "compose")
-final_clip.write_videofile("daily_mov/" + str(final_outname), fps = 24, threads = 4, audio = False, progress_bar = False)
+final_clip.write_videofile("daily_mov/" + str(final_outname), fps = 24, threads = 4, audio = False, progress_bar = True)
 
 # Cleanup the directory when we're done
 # for f in glob.glob("TWOSE_BaseSegment_*.mp4"):
