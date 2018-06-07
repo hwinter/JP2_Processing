@@ -10,6 +10,7 @@ from astropy.io import fits
 from sys import stdout as stdout
 from numba import jit
 from multiprocessing import Pool
+from bs4 import BeautifulSoup
 
 import numpy as np
 import sunpy.instr.aia as aia
@@ -23,11 +24,39 @@ import datetime
 import sys
 import requests
 
-fontpath = "BebasNeue Regular.otf"
-font = ImageFont.truetype(fontpath, 76)
+import SendText
+
+fontpath_header = "BebasNeue Regular.otf"
+header_font = ImageFont.truetype(fontpath_header, 76)
+
+fontpath_body = "BebasNeue Regular.otf"
+body_font = ImageFont.truetype(fontpath_body, 56)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
-current_wavelength = ""
+current_wavelength = str(input("WAVELENGTH: "))
+year = str(input("YEAR: ")).zfill(4)
+month = str(input("MONTH: ")).zfill(2)
+day = str(input("DAY: ")).zfill(2)
+print("BODY (ctrl-D to end): ")
+
+#Take input for descriptive text
+lines = []
+while(True):
+	new_line = raw_input()
+	lines.append(str(new_line))
+	if(new_line == ""):
+		break
+
+def buildURL():
+	wlen = current_wavelength
+	urlout = "http://jsoc.stanford.edu/data/aia/images/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
+	return(urlout)
+
+def listFD(url, ext=''):
+    page = requests.get(url).text
+    # print page
+    soup = BeautifulSoup(page, 'html.parser')
+    return [url + '/' + node.get('href') for node in soup.find_all('a') if node.get('href').endswith(ext)]
 
 def Fits_Index(DIR):
 	fits_list = []
@@ -51,6 +80,8 @@ def Colorize(FILE):
 	print("CONVERTING: " + str(FILE))
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
 	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
+	#black magic ffmpeg call to change the aspect ratio of each frame
+	subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
 	Annotate(convert_out)
 
 def Annotate(FILE):
@@ -81,15 +112,22 @@ def Annotate(FILE):
 	#	# Render it to a frame
 	draw = ImageDraw.Draw(img_pil)
 	# 	# #Put our text on it
-	print("applying timestamp... ")
-	draw.text((3468, 386), str(date), font = font, fill = (b, g, r, a))
-	draw.text((3468, 456), str(time), font = font, fill = (b, g, r, a))
-	draw.text((102, 3685), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
+	print("applying text... ")
+	draw.text((4268, 386), str(date), font = header_font, fill = (b, g, r, a))
+	draw.text((4268, 456), str(time), font = header_font, fill = (b, g, r, a))
+	y = 386
+	for line in lines:
+		draw.text((102, y), str(lines[lines.index(line)]), font = body_font, fill = (b, g, r, a))
+		y = y + 70
+
+	# draw.text((102, 456), str(line2), font = body_font, fill = (b, g, r, a))
+	# draw.text((102, 526), str(line3), font = body_font, fill = (b, g, r, a))
+	draw.text((102, 3700), "Earth Added for Size Scale", font = body_font, fill = (b, g, r, a))
 	# 	# #Turn it back in to a numpy array for OpenCV to deal with
 	frameStamp = np.array(img_pil)
 	annotate_out = "numbered/" + FILE.split("-")[1]
 
-	# print("printing frame: " + str(framenum))
+	print("printing frame: " + annotate_out)
 	cv2.imwrite(annotate_out, cv2.cvtColor(frameStamp, cv2.COLOR_RGB2BGR)) #It's critical to convert from BGR to RGB here, because OpenCV sees things differently from everyone else
 
 def Add_Earth(FILE):
@@ -110,7 +148,7 @@ def Add_Earth(FILE):
 
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.7, 0.7), relative = True).resize(lambda t : 1-0.01*t)
 	# earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_position(lambda t: (0.85-t*0.1, 0.85-t*0.1), relative = True).resize(0.071)
-	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.1, 0.88), relative = True).resize(0.02276) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
+	earth_g = earth_g.set_duration(earthvideo_length).fl_time(lambda t: speedmult*t).set_pos((0.024, 0.88), relative = True).resize(0.091) # to account for the downsized resolution of our template video. Current Earth size = 320 pixels
 
 
 	#The above statement is the meat and potatos of this script.
@@ -122,52 +160,78 @@ def Add_Earth(FILE):
 	main_video.extend( [earth_g] )
 	out_video = CompositeVideoClip(main_video)
 
-	out_video.set_duration(mlength).write_videofile("o_" + str(FILE), fps = 24, threads = 4, audio = False, progress_bar = False)
-	os.rename("o_" + str(FILE),FILE)
+	out_video.set_duration(mlength).write_videofile(str(FILE).split(".")[0] + "_.mp4", fps = 24, threads = 2, audio = False, progress_bar = True)
+	os.rename(str(FILE).split(".")[0] + "_.mp4", FILE)
 
-for wlen in target_wavelengths:
-	sorted_list = Fits_Index(str(wlen))
-	sorted_list = AIA_DecimateIndex(sorted_list, 8)
+#MAIN:
 
-	current_wavelength = wlen
+url = buildURL()
+print("CHECKING: " + str(url))
+
+alist = []
+for file in listFD(url, 'jp2'):
+    alist.append(str(file))
+
+print(alist[len(alist)-1])
+
+print("LENGTH: " + str(len(alist)))
+frameskip = input("TIMELAPSE: ")
+alist = AIA_DecimateIndex(alist, frameskip)
+print(alist[len(alist)-1])
+
+
+for file in range(0, len(alist)):
+	check = alist[file]
+	print("CHECK: " + check)
+	print("ECHO: " + "wget -P " + str(current_wavelength) + " " + check)
 	
-
-	if os.path.isdir("numbered") == False:
-		subprocess.call("mkdir numbered" , shell = True)
-	else:
-		for file in glob.glob("numbered/*.png"):
-			os.remove(file)
-
-	# sorted_number = 0
-
-	# for f in sorted_list:
-	# 	Colorize(f)
+	subprocess.call("wget -P " + str(current_wavelength) + " " + check, shell = True)
 
 
-	# Using multiprocess.pool() to parallelize our frame rendering
-	start = datetime.datetime.now()
+sorted_list = Fits_Index(str(current_wavelength))
+# sorted_list = AIA_DecimateIndex(sorted_list, 8)
 
-	pool = Pool()
-	pool.map(Colorize, sorted_list)
-	pool.close()
-	pool.join()
 
-	finish = datetime.datetime.now()
-	frame_timer = finish - start
+if os.path.isdir("numbered") == False:
+	subprocess.call("mkdir numbered" , shell = True)
+else:
+	for file in glob.glob("numbered/*.png"):
+		os.remove(file)
 
-	start = datetime.datetime.now()
-	subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y jp2_test_" + str(wlen) + ".mp4", shell = True)
-	"""
-	The range of the CRF scale is 0–51, where 0 is lossless, 23 is the default, and 51 is worst quality possible. 
-	A lower value generally leads to higher quality, and a subjectively sane range is 17–28. 
-	Consider 17 or 18 to be visually lossless or nearly so; it should look the same or nearly the same as the input but it isn't technically lossless.
-	"""
-	finish = datetime.datetime.now()
+# sorted_number = 0
 
-	render_timer = finish - start
-	print("TOTAL FRAMES: " + str(len(sorted_list)))
-	print("PROCESSING TIME: " + str(frame_timer))
-	print("RENDERING TIME: " + str(render_timer))
+# for f in sorted_list:
+# 	Colorize(f)
+
+
+# Using multiprocess.pool() to parallelize our frame rendering
+start = datetime.datetime.now()
+
+pool = Pool()
+pool.map(Colorize, sorted_list)
+pool.close()
+pool.join()
+
+outname = "NASM_" + year + month + day + ".mp4"
+
+print("RENDERING: " + outname)
+
+subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
+Add_Earth("complete/" + str(outname))
+# subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
+
+finish = datetime.datetime.now()
+
+render_timer = finish - start
+print("TOTAL FRAMES: " + str(len(sorted_list)))
+# print("PROCESSING TIME: " + str(frame_timer))
+print("RENDERING TIME: " + str(render_timer))
+
+SendText.Send_Text(str(outname) + " render complete! " + str(finish))
+
+except: # catch *all* exceptions
+	e = sys.exc_info()[0]
+	SendText.Send_Text("ERROR: " + str(outname) + " failed: " + e)
 
 
 
