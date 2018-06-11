@@ -30,12 +30,12 @@ for run in range(0,runs):
 
 for run in range(0,runs):
 	# print("RUN: " + str(run))
-	body = """"""
+	body = ""
 	for i in paragraph[run]:
 		# print("i: " + str(i))
 		# print(paragraph[run].index(i))
 		body = body + str(i) + "\n"
 		# print(body)
 
-	subprocess.call("printf '" + str(wlen[run]) + "\n" + str(year[run]) + "\n" + str(month[run]) + "\n" + str(day[run]) + "\n" + str(body) + str(timelapse) + "\n' | python test_NASM_jpeg2000_processing_.py", shell = True)
+	subprocess.call("printf '" + str(wlen[run]) + "\n" + str(year[run]) + "\n" + str(month[run]) + "\n" + str(day[run]) + "\n" + str(body) + str(timelapse) + "\n"' | python test_NASM_jpeg2000_processing_.py", shell = True)
 	# print("source activate AIADev && printf '" + str(wlen[run]) + "\n" + str(year[run]) + "\n" + str(month[run]) + "\n" + str(day[run]) + "\n" + str(body) + str(timelapse) + "\n' | python test_NASM_jpeg2000_processing_.py")
