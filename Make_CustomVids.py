@@ -37,5 +37,5 @@ for run in range(0,runs):
 		body = body + str(i) + "\n"
 		print(body)
 
-	# subprocess.call("source activate AIADev && printf '193\n2018\n1\n30\nTheQuick\nBrown Fox\n\n128\n' | python test_NASM_jpeg2000_processing_.py", shell = True)
-	print("source activate AIADev && printf '" + str(wlen[run]) + "\n" + str(year[run]) + "\n" + str(month[run]) + "\n" + str(day[run]) + "\n" + str(body) + str(timelapse) + "\n' | python test_NASM_jpeg2000_processing_.py")
+	subprocess.call("source activate AIADev && printf '" + str(wlen[run]) + "\n" + str(year[run]) + "\n" + str(month[run]) + "\n" + str(day[run]) + "\n" + str(body) + str(timelapse) + "\n' | python test_NASM_jpeg2000_processing_.py", shell = True)
+	# print("source activate AIADev && printf '" + str(wlen[run]) + "\n" + str(year[run]) + "\n" + str(month[run]) + "\n" + str(day[run]) + "\n" + str(body) + str(timelapse) + "\n' | python test_NASM_jpeg2000_processing_.py")
