@@ -1,7 +1,6 @@
-<<<<<<< HEAD
-# -*- coding: unic -*-
-=======
->>>>>>> parent of 8c20cbc... Encoding
+
+# -*- coding: utf-8 -*-
+
 from __future__ import print_function
 
 import matplotlib
