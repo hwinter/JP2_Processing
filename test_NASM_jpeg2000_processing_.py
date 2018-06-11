@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: unic -*-
 from __future__ import print_function
 
 import matplotlib
