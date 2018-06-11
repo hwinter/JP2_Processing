@@ -2,11 +2,16 @@
 
 source activate AIADev
 
-python ~/GitHub/JP2_Processing/test_NASM_jpeg2000_processing_.py \n
-193 \n
-2018 \n
-1 \n
-30 \n
-blah blah blah some text \n
-some text \n
-(v'_')v \n
+python ~/GitHub/JP2_Processing/test_NASM_jpeg2000_processing_.py 
+# sleep 10
+expect "WAVELENGTH: " {
+	echo "193"
+}
+
+echo 2018
+echo 1
+echo 30
+echo blah blah blah some text
+echo some text
+echo 
+echo 128
