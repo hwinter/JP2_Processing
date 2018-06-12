@@ -13,9 +13,9 @@ paragraph = []
 
 for run in range(0,runs):
 	wlen.append(str(input(str(run) + " WAVELENGTH: ")))
-	year.append(str(input(str(run) + " YEAR: ")).zfill(4))
-	month.append(str(input(str(run) + " MONTH: ")).zfill(2))
-	day.append(str(input(str(run) + " DAY: ")).zfill(2))
+	year.append(str(input(str(run) + " YEAR: ")))
+	month.append(str(input(str(run) + " MONTH: ")))
+	day.append(str(input(str(run) + " DAY: ")))
 	print("BODY (ctrl-D to end): ")
 
 	#Take input for descriptive text
