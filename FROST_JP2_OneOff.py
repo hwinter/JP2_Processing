@@ -24,6 +24,11 @@ import datetime
 import sys
 import requests
 
+import SendText
+import Purge_Media
+
+Purge_Media.Purge_Media()
+
 fontpath_header = "ReplicaFrostStencil-Regular.otf"
 header_font = ImageFont.truetype(fontpath_header, 76)
 
@@ -161,68 +166,81 @@ def Add_Earth(FILE):
 	os.rename(str(FILE).split(".")[0] + "_.mp4", FILE)
 
 #MAIN:
+if __name__ == '__main__':
+	try:
 
-url = buildURL()
-print("CHECKING: " + str(url))
+		url = buildURL()
+		print("CHECKING: " + str(url))
 
-alist = []
-for file in listFD(url, 'jp2'):
-    alist.append(str(file))
+		alist = []
+		for file in listFD(url, 'jp2'):
+		    alist.append(str(file))
 
-print(alist[len(alist)-1])
+		print(alist[len(alist)-1])
 
-print("LENGTH: " + str(len(alist)))
-frameskip = input("TIMELAPSE: ")
-alist = AIA_DecimateIndex(alist, frameskip)
-print(alist[len(alist)-1])
-# wait = input("WAIT...")
+		print("LENGTH: " + str(len(alist)))
+		frameskip = input("TIMELAPSE: ")
+		alist = AIA_DecimateIndex(alist, frameskip)
+		print(alist[len(alist)-1])
+		# wait = input("WAIT...")
 
-for file in range(0, len(alist)):
-	check = alist[file]
-	print("CHECK: " + check)
-	print("ECHO: " + "wget -P " + str(current_wavelength) + " " + check)
-	
-	subprocess.call("wget -P " + str(current_wavelength) + " " + check, shell = True)
-
-
-sorted_list = Fits_Index(str(current_wavelength))
-# sorted_list = AIA_DecimateIndex(sorted_list, 8)
+		for file in range(0, len(alist)):
+			check = alist[file]
+			print("CHECK: " + check)
+			print("ECHO: " + "wget -P " + str(current_wavelength) + " " + check)
+			
+			subprocess.call("wget -P " + str(current_wavelength) + " " + check, shell = True)
 
 
-if os.path.isdir("numbered") == False:
-	subprocess.call("mkdir numbered" , shell = True)
-else:
-	for file in glob.glob("numbered/*.png"):
-		os.remove(file)
-
-# sorted_number = 0
-
-# for f in sorted_list:
-# 	Colorize(f)
+		sorted_list = Fits_Index(str(current_wavelength))
+		# sorted_list = AIA_DecimateIndex(sorted_list, 8)
 
 
-# Using multiprocess.pool() to parallelize our frame rendering
-start = datetime.datetime.now()
+		if os.path.isdir("numbered") == False:
+			subprocess.call("mkdir numbered" , shell = True)
+		else:
+			for file in glob.glob("numbered/*.png"):
+				os.remove(file)
 
-pool = Pool()
-pool.map(Colorize, sorted_list)
-pool.close()
-pool.join()
+		# sorted_number = 0
 
-outname = "FROST_" + year + month + day + ".mp4"
+		# for f in sorted_list:
+		# 	Colorize(f)
 
-print("RENDERING: " + outname)
 
-subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
-Add_Earth("complete/" + str(outname))
-# subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
+		# Using multiprocess.pool() to parallelize our frame rendering
+		start = datetime.datetime.now()
 
-finish = datetime.datetime.now()
+		pool = Pool()
+		pool.map(Colorize, sorted_list)
+		pool.close()
+		pool.join()
 
-render_timer = finish - start
-print("TOTAL FRAMES: " + str(len(sorted_list)))
-# print("PROCESSING TIME: " + str(frame_timer))
-print("RENDERING TIME: " + str(render_timer))
+		outname = "FROST_" + year + month + day + ".mp4"
+
+		print("RENDERING: " + outname)
+
+		subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
+		Add_Earth("complete/" + str(outname))
+		# subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
+
+		finish = datetime.datetime.now()
+
+		render_timer = finish - start
+		print("TOTAL FRAMES: " + str(len(sorted_list)))
+		# print("PROCESSING TIME: " + str(frame_timer))
+		print("RENDERING TIME: " + str(render_timer))
+
+
+		SendText.Send_Text(str(outname) + " render complete! " + str(finish))
+
+	except:
+		outname = "FROST_" + year + month + day + ".mp4"
+		e = sys.exc_info()[0]
+		SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
+
+
+
 
 
 

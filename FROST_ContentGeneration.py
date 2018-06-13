@@ -95,8 +95,8 @@ def Annotate(FILE):
 	draw = ImageDraw.Draw(img_pil)
 	# 	# #Put our text on it
 	# print("applying timestamp... ")
-	draw.text((102, 306), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
-	draw.text((102, 386), temperatures_celsius[target_wavelengths.index(wlen)], font = font, fill = (b, g, r, a))
+	# draw.text((102, 306), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
+	# draw.text((102, 386), temperatures_celsius[target_wavelengths.index(wlen)], font = font, fill = (b, g, r, a))
 	draw.text((3868, 306), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	draw.text((3868, 386), str(date), font = font, fill = (b, g, r, a))
 	draw.text((3868, 456), str(time), font = font, fill = (b, g, r, a))
@@ -157,7 +157,7 @@ def AIA_ArrangeByTemp(LIST):
 
 	return(list_out)
 
-def AIA_AddInfographic(BASE, OVERLAY, OUTNAME): #BASE: Output of AIA_GenerateBackground(), Overlay: the graphical overlay image EG: TWOSE_Wall_Base2x2.mp4, OVERLAY_2x2.png
+def AIA_AddInfographic(BASE, OVERLAY, OUTNAME): #BASE: Output of AIA_GenerateBackground(), Overlay: the graphical overlay image EG: FROST_Wall_Base2x2.mp4, OVERLAY_2x2.png
 	
 	cap = cv2.VideoCapture(BASE)
 	fg = cv2.imread(OVERLAY,-1)
@@ -195,7 +195,7 @@ def AIA_AddInfographic(BASE, OVERLAY, OUTNAME): #BASE: Output of AIA_GenerateBac
 
 	        # write the processed frame
 
-	        cv2.imwrite("TWOSE_out" + str(i) + ".png", outImage)
+	        cv2.imwrite("FROST_out" + str(i) + ".png", outImage)
 	        i = i + 1
 	
 	        print("\rOverlaying frame: " + str(i), end = "")
@@ -206,16 +206,39 @@ def AIA_AddInfographic(BASE, OVERLAY, OUTNAME): #BASE: Output of AIA_GenerateBac
 	    else:
 	        break
 
-	subprocess.call('ffmpeg -r 24 -i TWOSE_out%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y ' + str(OUTNAME), shell=True)
+	subprocess.call('ffmpeg -r 24 -i FROST_out%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -y ' + str(OUTNAME), shell=True)
 
-	for f in glob.glob("TWOSE_out*.png"):
+	for f in glob.glob("FROST_out*.png"):
 	    os.remove(f)
 
 	# Release everything if job is finished
 	cap.release()
 
+def Compile_Final_Video(DAILY):
+	im = ImageClip("misc/FROST_TEMPLATE.png") 
+	regions = findObjects(im)
+
+	clips = [VideoFileClip(n) for n in
+		["misc/sidebar/solar_rain.mp4",
+		"misc/test/2.mp4",
+		"misc/sidebar/1700.mp4",
+		DAILY, #path to our feature video
+		]]
+
+	clips[1] = ImageClip("misc/sidebar/ContentBody.png") 
+
+	comp_clips = [c.resize(r.size).set_mask(r.mask).set_pos(r.screenpos) for c,r in zip(clips,regions)] #We build our composite here.
+	cc = CompositeVideoClip(comp_clips,im.size)
+
+	cc.set_duration(clips[3].duration).write_videofile(str(DAILY).split(".")[0] + "_.mp4", fps = 24, threads = 4, audio = False)
+	os.rename(str(DAILY).split(".")[0] + "_.mp4", DAILY)
+
+
 if __name__ == '__main__':
 	try:
+
+		sorted_list = []
+		#Make a video for each spectrum
 		for wlen in target_wavelengths:
 			sorted_list = Fits_Index(str(wlen))
 			sorted_list = AIA_DecimateIndex(sorted_list, 2)
@@ -229,12 +252,6 @@ if __name__ == '__main__':
 			else:
 				for file in glob.glob("numbered/*.png"):
 					os.remove(file)
-
-			# sorted_number = 0
-
-			# for f in sorted_list:
-			# 	Colorize(f)
-
 
 			# Using multiprocess.pool() to parallelize our frame rendering
 			start = datetime.datetime.now()
@@ -264,37 +281,53 @@ if __name__ == '__main__':
 
 
 		# Generate a base video composite -> add graphical overlay -> Repeat. Each overlay is numerically matched to the base video, to synchronize temperature data.
-
 		vlist = Video_List()
 		print("VLIST: " + str(vlist))
 		vlist = AIA_ArrangeByTemp(vlist)
 		print("SORTED: " + str(vlist))
 
-		# Take all the clips we've generated, and stitch them in to one long video.
-		clip1 = VideoFileClip(str(vlist[0]))
-		clip2 = VideoFileClip(str(vlist[1]))
-		clip3 = VideoFileClip(str(vlist[2]))
-		clip4 = VideoFileClip(str(vlist[3]))
-		clip5 = VideoFileClip(str(vlist[4]))
-		clip6 = VideoFileClip(str(vlist[5]))
+		for video in vlist:
+			templateIn = "misc/TEMPLATE_2x3.png"
+			videoOut = "working/FROST_BaseSegment_" + str(video.index()) + "_.mp4"
+			feature = vlist[video.index()]
+			segment_length = (len(sorted_list) / 24) #number of frames in the database divided by 24 frames per second of video
 
-		final_outname = str(year) + "_" + str(month) + "_" + str(day) + "_TWOSE_VideoWall_Concatenated.mp4"
+			AIA_GenerateBackground(templateIn, feature, segment_length, videoOut)
+
+			baseVideoIn = "working/FROST_BaseSegment_" + str(video.index()) + "_.mp4"
+			segmentVideoOut = "working/FROST_SegmentOverlay_" + str(n) + "_.mp4"
+			overlayIn = "misc/OVERLAY_2x3_FROST_" + str(video.index()) + ".png"
+			AIA_AddInfographic(baseVideoIn, overlayIn, segmentVideoOut)
+
+			subprocess.call('killall ffmpeg', shell = True) #This is a temporary fix for the leaky way that Moviepy calls ffmpeg
+
+		# Take all the clips we've generated, and stitch them in to one long video.
+		clip1 = VideoFileClip("working/FROST_SegmentOverlay_0_.mp4")
+		clip2 = VideoFileClip("working/FROST_SegmentOverlay_1_.mp4")
+		clip3 = VideoFileClip("working/FROST_SegmentOverlay_2_.mp4")
+		clip4 = VideoFileClip("working/FROST_SegmentOverlay_3_.mp4")
+		clip5 = VideoFileClip("working/FROST_SegmentOverlay_4_.mp4")
+		clip6 = VideoFileClip("working/FROST_SegmentOverlay_5_.mp4")
+
+		final_outname = str(year) + "_" + str(month) + "_" + str(day) + "_FROST_VideoWall_Concatenated.mp4"
 		final_clip = concatenate_videoclips([clip6, clip5.crossfadein(1), clip4.crossfadein(1), clip3.crossfadein(1), clip2.crossfadein(1), clip1.crossfadein(1)], padding = -1, method = "compose")
 		final_clip.write_videofile("daily_mov/" + str(final_outname), fps = 24, threads = 4, audio = False, progress_bar = True)
 
+		Compile_Final_Video("daily_mov/" + str(final_outname))
+
 		SendText.Send_Text(str(final_outname) + " render complete! ")
 		# Cleanup the directory when we're done
-		# for f in glob.glob("TWOSE_BaseSegment_*.mp4"):
+		# for f in glob.glob("FROST_BaseSegment_*.mp4"):
 		# 	    os.remove(f)
 
-		# for f in glob.glob("TWOSE_SegmentOverlay_*.mp4"):
+		# for f in glob.glob("FROST_SegmentOverlay_*.mp4"):
 		# 	    os.remove(f)
 
 		# timeend = datetime.datetime.now()
 		# finaltime = timeend - timestart
 		# print("Final Runtime: " + str(finaltime))
 	except:
-		outname = year + month + day + "_TWOSE_VideoWall_Concatenated.mp4"
+		outname = year + month + day + "_FROST_VideoWall_Concatenated.mp4"
 		e = sys.exc_info()[0]
 		SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
 
