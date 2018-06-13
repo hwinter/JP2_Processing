@@ -219,13 +219,14 @@ def Compile_Final_Video(DAILY):
 	regions = findObjects(im)
 
 	clips = [VideoFileClip(n) for n in
-		["misc/sidebar/solar_rain.mp4",
+		["misc/test/1.mp4",
 		"misc/test/2.mp4",
-		"misc/sidebar/1700.mp4",
+		"misc/sidebar/solar_rain.mp4",
 		DAILY, #path to our feature video
 		]]
 
-	clips[1] = ImageClip("misc/sidebar/ContentBody.png") 
+	clips[1] = ImageClip("misc/sidebar/ContentBody.png")
+	clips[0] = ImageClip("misc/sidebar/ChandraCraftSolarWall.png") 
 
 	comp_clips = [c.resize(r.size).set_mask(r.mask).set_pos(r.screenpos) for c,r in zip(clips,regions)] #We build our composite here.
 	cc = CompositeVideoClip(comp_clips,im.size)
