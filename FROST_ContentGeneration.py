@@ -237,7 +237,6 @@ def Compile_Final_Video(DAILY):
 
 if __name__ == '__main__':
 	try:
-
 		sorted_list = []
 		#Make a video for each spectrum
 		for wlen in target_wavelengths:
@@ -329,7 +328,7 @@ if __name__ == '__main__':
 		# print("Final Runtime: " + str(finaltime))
 	except:
 		outname = year + month + day + "_FROST_VideoWall_Concatenated.mp4"
-		e = sys.exc_info()[0]
+		e = sys.exc_info()[0] + "\n" + sys.exc_info()[2]
 		SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
 
 
