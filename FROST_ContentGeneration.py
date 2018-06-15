@@ -72,7 +72,7 @@ def Annotate(FILE):
 	time = 0
 	wlen = 0
 
-	b,g,r,a = 191,191,191,0
+	b,g,r,a = 0,199,223,0
 	# framenum = database.index(FILE)
 	# framenum = str(framenum).zfill(4)
 
