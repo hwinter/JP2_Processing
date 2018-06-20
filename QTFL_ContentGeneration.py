@@ -39,10 +39,10 @@ target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 temperatures_celsius = ["6,000,000 degrees Celsius", "1,000,000 degrees Celsius", "1,222,200 degrees Celsius", "2,000,000 degrees Celsius", "100,000 degrees Celsius", "2,500,000 degrees Celsius"]
 current_wavelength = ""
 
-for folder in target_wavelengths:
-	for file in glob.glob(str(folder) + "/*.png"):
-		print("CLEANING: ", file)
-		os.remove(file)
+# for folder in target_wavelengths:
+# 	for file in glob.glob(str(folder) + "/*.png"):
+# 		print("CLEANING: ", file)
+# 		os.remove(file)
 
 def Fits_Index(DIR):
 	fits_list = []
@@ -223,7 +223,7 @@ if __name__ == '__main__':
 	try:
 		for wlen in target_wavelengths:
 			sorted_list = Fits_Index(str(wlen))
-			sorted_list = AIA_DecimateIndex(sorted_list, 64)
+			sorted_list = AIA_DecimateIndex(sorted_list, 2)
 
 			current_wavelength = wlen
 			
@@ -286,6 +286,9 @@ if __name__ == '__main__':
 		final_outname = str(year) + "_" + str(month) + "_" + str(day) + "_QTFL_VideoWall_Concatenated.mp4"
 		final_clip = concatenate_videoclips([clip6, clip5.crossfadein(1), clip4.crossfadein(1), clip3.crossfadein(1), clip2.crossfadein(1), clip1.crossfadein(1)], padding = -1, method = "compose")
 		final_clip.write_videofile("daily_mov/" + str(final_outname), fps = 24, threads = 4, audio = False, progress_bar = True)
+
+		subprocess.call("ffmpeg -i " + final_outname + " -filter:v scale=3840:-1 -c:a copy _" + final_outname, shell = True)
+		os.rename(("_" + final_outname), final_outname)
 
 		SendText.Send_Text(str(final_outname) + " render complete! ")
 		# Cleanup the directory when we're done

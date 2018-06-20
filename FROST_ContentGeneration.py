@@ -240,11 +240,8 @@ if __name__ == '__main__':
 		sorted_list = []
 		#Make a video for each spectrum
 		for wlen in target_wavelengths:
-			for f in glob.glob(str(wlen) + "/*.png")
-				os.remove(f)
-				print("CLEANING: " + str(f))
 			sorted_list = Fits_Index(str(wlen))
-			sorted_list = AIA_DecimateIndex(sorted_list, 128)
+			sorted_list = AIA_DecimateIndex(sorted_list, 64)
 
 			current_wavelength = wlen
 			
