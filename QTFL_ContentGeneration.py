@@ -33,11 +33,15 @@ month = global_date.split("-")[1]
 day = str(int(global_date.split("-")[2].split(" ")[0]) - 1).zfill(2)
 
 fontpath = "BebasNeue Regular.otf"
-font = ImageFont.truetype(fontpath, 76)
+font = ImageFont.truetype(fontpath, 56)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 temperatures_celsius = ["6,000,000 degrees Celsius", "1,000,000 degrees Celsius", "1,222,200 degrees Celsius", "2,000,000 degrees Celsius", "100,000 degrees Celsius", "2,500,000 degrees Celsius"]
 current_wavelength = ""
+
+for f in target_wavelengths:
+	print("CLEANING: ", f)
+	os.remove(str(f) + "/*.png")
 
 def Fits_Index(DIR):
 	fits_list = []
@@ -97,7 +101,7 @@ def Annotate(FILE):
 	# print("applying timestamp... ")
 	# draw.text((102, 306), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	# draw.text((102, 386), temperatures_celsius[target_wavelengths.index(wlen)], font = font, fill = (b, g, r, a))
-	draw.text((3868, 3705), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
+	draw.text((3868, 3705), "Observation Time:", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
 	draw.text((3868, 3785), str(date), font = font, fill = (b, g, r, a))
 	draw.text((3868, 3855), str(time), font = font, fill = (b, g, r, a))
 	draw.text((102, 3705), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
@@ -218,7 +222,7 @@ if __name__ == '__main__':
 	try:
 		for wlen in target_wavelengths:
 			sorted_list = Fits_Index(str(wlen))
-			sorted_list = AIA_DecimateIndex(sorted_list, 128)
+			sorted_list = AIA_DecimateIndex(sorted_list, 64)
 
 			current_wavelength = wlen
 			
