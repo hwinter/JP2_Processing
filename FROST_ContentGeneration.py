@@ -244,7 +244,7 @@ if __name__ == '__main__':
 				os.remove(f)
 				print("CLEANING: " + str(f))
 			sorted_list = Fits_Index(str(wlen))
-			sorted_list = AIA_DecimateIndex(sorted_list, 256)
+			sorted_list = AIA_DecimateIndex(sorted_list, 128)
 
 			current_wavelength = wlen
 			
