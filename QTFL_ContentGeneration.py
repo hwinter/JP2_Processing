@@ -40,9 +40,9 @@ temperatures_celsius = ["6,000,000 degrees Celsius", "1,000,000 degrees Celsius"
 current_wavelength = ""
 
 for folder in target_wavelengths:
-	for file in glob.glob(str(folder) + "/*.png")
-	print("CLEANING: ", file)
-	os.remove(file)
+	for file in glob.glob(str(folder) + "/*.png"):
+		print("CLEANING: ", file)
+		os.remove(file)
 
 def Fits_Index(DIR):
 	fits_list = []
