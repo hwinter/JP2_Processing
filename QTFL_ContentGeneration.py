@@ -23,6 +23,7 @@ import os
 import datetime
 import sys
 import requests
+import traceback
 
 import SendText
 
@@ -303,7 +304,7 @@ if __name__ == '__main__':
 		# print("Final Runtime: " + str(finaltime))
 	except:
 		outname = year + month + day + "_QTFL_VideoWall_Concatenated.mp4"
-		e = str(sys.exc_info()[2])
+		e = traceback.format_exc()
 		SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
 
 

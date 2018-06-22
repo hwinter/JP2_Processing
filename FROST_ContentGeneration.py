@@ -328,7 +328,7 @@ if __name__ == '__main__':
 		# print("Final Runtime: " + str(finaltime))
 	except:
 		outname = year + month + day + "_FROST_VideoWall_Concatenated.mp4"
-		e = str(sys.exc_info()[0]) + "\n" + str(sys.exc_info()[2])
+		e = sys.exc_info()[2]
 		SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
 
 
