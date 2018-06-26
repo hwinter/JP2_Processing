@@ -270,17 +270,26 @@ if __name__ == '__main__':
 		vlist = AIA_ArrangeByTemp(vlist)
 		print("SORTED: " + str(vlist))
 
-		# Take all the clips we've generated, and stitch them in to one long video.
-		clip1 = VideoFileClip(str(vlist[0]))
-		clip2 = VideoFileClip(str(vlist[1]))
-		clip3 = VideoFileClip(str(vlist[2]))
-		clip4 = VideoFileClip(str(vlist[3]))
-		clip5 = VideoFileClip(str(vlist[4]))
-		clip6 = VideoFileClip(str(vlist[5]))
+		clips = []
+		seg_len = 0
+
+		for f in vlist:
+			clip = VideoFileClip(f)
+			print(f, "DURATION: ", clip.duration)
+			clips.append(clip)
+		
+		print("CLIPS: ", clips)
+		seg_len = clips[0].duration / len(clips)
+
+		for f in clips:
+
+			print("CLIP: ", f, "SEG LEN: ", seg_len, "TIMES: ", str(clips.index(f) * seg_len), " - ", str((clips.index(f) * seg_len) + seg_len))
+			clips[clips.index(f)] = f.subclip((clips.index(f) * seg_len),((clips.index(f) * seg_len) + seg_len))
 
 		final_outname = str(year) + "_" + str(month) + "_" + str(day) + "_TWOSE_VideoWall_Concatenated.mp4"
-		final_clip = concatenate_videoclips([clip6, clip5.crossfadein(1), clip4.crossfadein(1), clip3.crossfadein(1), clip2.crossfadein(1), clip1.crossfadein(1)], padding = -1, method = "compose")
+		final_clip = concatenate_videoclips([clips[0], clips[1].crossfadein(1), clips[2].crossfadein(1), clips[3].crossfadein(1), clips[4].crossfadein(1), clips[5].crossfadein(1)], padding = -1, method = "compose")
 		final_clip.write_videofile("daily_mov/" + str(final_outname), fps = 24, threads = 4, audio = False, progress_bar = True)
+		subprocess.call('ffmpeg -i daily_mov/' + str(final_outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,2160/ih):ih*min(3840/(iw*sar)\,2160/ih), pad=3840:2160:(3840-iw*min(3840/iw\,2160/ih))/2:(2160-ih*min(2160/iw\,2160/ih))/2"  -y ' + "Converted_" + final_outname, shell = True)
 
 		SendText.Send_Text(str(final_outname) + " render complete! ")
 		# Cleanup the directory when we're done
