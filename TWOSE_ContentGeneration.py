@@ -215,83 +215,87 @@ def AIA_AddInfographic(BASE, OVERLAY, OUTNAME): #BASE: Output of AIA_GenerateBac
 	cap.release()
 
 if __name__ == '__main__':
-	try:
-		for wlen in target_wavelengths:
-			sorted_list = Fits_Index(str(wlen))
-			sorted_list = AIA_DecimateIndex(sorted_list, 2)
-
-			current_wavelength = wlen
-			
-			subprocess.call("rm " + str(wlen) + "/*.png", shell = True) #purge PNG files from previous runs. This is less than ideal, but neccessary until we solve the problem of shifting timeframes and corresponding frame numbers
-
-			if os.path.isdir("numbered") == False:
-				subprocess.call("mkdir numbered" , shell = True)
-			else:
-				for file in glob.glob("numbered/*.png"):
-					os.remove(file)
-
-			# sorted_number = 0
-
-			# for f in sorted_list:
-			# 	Colorize(f)
-
-
-			# Using multiprocess.pool() to parallelize our frame rendering
-			start = datetime.datetime.now()
-
-			pool = Pool()
-			pool.map(Colorize, sorted_list)
-			pool.close()
-			pool.join()
-
-			finish = datetime.datetime.now()
-			frame_timer = finish - start
-
-			start = datetime.datetime.now()
-			subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y working/wav_vids/" + str(wlen).zfill(4) + ".mp4", shell = True)
-			Add_Earth("working/wav_vids/" + str(wlen).zfill(4) + ".mp4")
-			"""
-			The range of the CRF scale is 0–51, where 0 is lossless, 23 is the default, and 51 is worst quality possible. 
-			A lower value generally leads to higher quality, and a subjectively sane range is 17–28. 
-			Consider 17 or 18 to be visually lossless or nearly so; it should look the same or nearly the same as the input but it isn't technically lossless.
-			"""
-			finish = datetime.datetime.now()
-
-			render_timer = finish - start
-			print("TOTAL FRAMES: " + str(len(sorted_list)))
-			print("PROCESSING TIME: " + str(frame_timer))
-			print("RENDERING TIME: " + str(render_timer))
-
-
-		# Generate a base video composite -> add graphical overlay -> Repeat. Each overlay is numerically matched to the base video, to synchronize temperature data.
-
-		vlist = Video_List()
-		print("VLIST: " + str(vlist))
-		vlist = AIA_ArrangeByTemp(vlist)
-		print("SORTED: " + str(vlist))
-
-		clips = []
-		seg_len = 0
-
-		for f in vlist:
-			clip = VideoFileClip(f)
-			print(f, "DURATION: ", clip.duration)
-			clips.append(clip)
+	# try:
+	for wlen in target_wavelengths:
+		if(os.path.isfile("live/" + wlen) == False):
+			subprocess.call("mkdir -p live/", shell = True)
 		
-		print("CLIPS: ", clips)
-		seg_len = clips[0].duration / len(clips)
+		subprocess.call(['cp', '-r', wlen, "live/"]) 
+		sorted_list = Fits_Index(str("live/" + wlen))
+		sorted_list = AIA_DecimateIndex(sorted_list, 2)
 
-		for f in clips:
+		current_wavelength = wlen
+		
+		subprocess.call("rm " + str(wlen) + "/*.png", shell = True) #purge PNG files from previous runs. This is less than ideal, but neccessary until we solve the problem of shifting timeframes and corresponding frame numbers
 
-			print("CLIP: ", f, "SEG LEN: ", seg_len, "TIMES: ", str(clips.index(f) * seg_len), " - ", str((clips.index(f) * seg_len) + seg_len))
-			clips[clips.index(f)] = f.subclip((clips.index(f) * seg_len),((clips.index(f) * seg_len) + seg_len))
+		if os.path.isdir("numbered") == False:
+			subprocess.call("mkdir numbered" , shell = True)
+		else:
+			for file in glob.glob("numbered/*.png"):
+				os.remove(file)
 
-		final_outname = str(year) + "_" + str(month) + "_" + str(day) + "_TWOSE_VideoWall_Concatenated.mp4"
-		final_clip = concatenate_videoclips([clips[0], clips[1].crossfadein(1), clips[2].crossfadein(1), clips[3].crossfadein(1), clips[4].crossfadein(1), clips[5].crossfadein(1)], padding = -1, method = "compose")
-		final_clip.write_videofile("daily_mov/" + str(final_outname), fps = 24, threads = 4, audio = False, progress_bar = True)
-		subprocess.call('ffmpeg -i daily_mov/' + str(final_outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,2160/ih):ih*min(3840/(iw*sar)\,2160/ih), pad=3840:2160:(3840-iw*min(3840/iw\,2160/ih))/2:(2160-ih*min(2160/iw\,2160/ih))/2"  -y ' + "Converted_" + final_outname, shell = True)
+		# sorted_number = 0
 
-		SendText.Send_Text(str(final_outname) + " render complete! ")
+		# for f in sorted_list:
+		# 	Colorize(f)
+
+
+		# Using multiprocess.pool() to parallelize our frame rendering
+		start = datetime.datetime.now()
+
+		pool = Pool()
+		pool.map(Colorize, sorted_list)
+		pool.close()
+		pool.join()
+
+		finish = datetime.datetime.now()
+		frame_timer = finish - start
+
+		start = datetime.datetime.now()
+		subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y working/wav_vids/" + str(wlen).zfill(4) + ".mp4", shell = True)
+		Add_Earth("working/wav_vids/" + str(wlen).zfill(4) + ".mp4")
+		"""
+		The range of the CRF scale is 0–51, where 0 is lossless, 23 is the default, and 51 is worst quality possible. 
+		A lower value generally leads to higher quality, and a subjectively sane range is 17–28. 
+		Consider 17 or 18 to be visually lossless or nearly so; it should look the same or nearly the same as the input but it isn't technically lossless.
+		"""
+		finish = datetime.datetime.now()
+
+		render_timer = finish - start
+		print("TOTAL FRAMES: " + str(len(sorted_list)))
+		print("PROCESSING TIME: " + str(frame_timer))
+		print("RENDERING TIME: " + str(render_timer))
+
+
+	# Generate a base video composite -> add graphical overlay -> Repeat. Each overlay is numerically matched to the base video, to synchronize temperature data.
+
+	vlist = Video_List()
+	print("VLIST: " + str(vlist))
+	vlist = AIA_ArrangeByTemp(vlist)
+	print("SORTED: " + str(vlist))
+
+	clips = []
+	seg_len = 0
+
+	for f in vlist:
+		clip = VideoFileClip(f)
+		print(f, "DURATION: ", clip.duration)
+		clips.append(clip)
+	
+	print("CLIPS: ", clips)
+	seg_len = clips[0].duration / len(clips)
+
+	for f in clips:
+
+		print("CLIP: ", f, "SEG LEN: ", seg_len, "TIMES: ", str(clips.index(f) * seg_len), " - ", str((clips.index(f) * seg_len) + seg_len))
+		clips[clips.index(f)] = f.subclip((clips.index(f) * seg_len),((clips.index(f) * seg_len) + seg_len))
+
+	final_outname = str(year) + "_" + str(month) + "_" + str(day) + "_TWOSE_VideoWall_Concatenated.mp4"
+	final_clip = concatenate_videoclips([clips[0], clips[1].crossfadein(1), clips[2].crossfadein(1), clips[3].crossfadein(1), clips[4].crossfadein(1), clips[5].crossfadein(1)], padding = -1, method = "compose")
+	final_clip.write_videofile("daily_mov/" + str(final_outname), fps = 24, threads = 4, audio = False, progress_bar = True)
+	subprocess.call('ffmpeg -i daily_mov/' + str(final_outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,2160/ih):ih*min(3840/(iw*sar)\,2160/ih), pad=3840:2160:(3840-iw*min(3840/iw\,2160/ih))/2:(2160-ih*min(2160/iw\,2160/ih))/2"  -y ' + "Converted_" + final_outname, shell = True)
+
+	SendText.Send_Text(str(final_outname) + " render complete! ")
 		# Cleanup the directory when we're done
 		# for f in glob.glob("TWOSE_BaseSegment_*.mp4"):
 		# 	    os.remove(f)
@@ -302,9 +306,9 @@ if __name__ == '__main__':
 		# timeend = datetime.datetime.now()
 		# finaltime = timeend - timestart
 		# print("Final Runtime: " + str(finaltime))
-	except:
-		outname = year + month + day + "_TWOSE_VideoWall_Concatenated.mp4"
-		e = sys.exc_info()[0]
-		SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
+	# except:
+	# 	outname = year + month + day + "_TWOSE_VideoWall_Concatenated.mp4"
+	# 	e = sys.exc_info()[0]
+	# 	SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
 
 
