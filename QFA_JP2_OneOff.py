@@ -217,12 +217,14 @@ if __name__ == '__main__':
 		pool.close()
 		pool.join()
 
-		outname = "QFA_" + year + "_" + month + "_" + day + ".mp4"
+		direct_name = year + "_" + month + "_" + day
+		subprocess.call("mkdir -p complete/" + direct_name, shell = True)
+		outname = "QFA__" + year + "_" + month + "_" + day + "__wlen" ".mp4"
 
 		print("RENDERING: " + outname)
 
-		subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
-		Add_Earth("complete/" + str(outname))
+		subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + direct_name + "/" + outname, shell = True)
+		Add_Earth("complete/" + direct_name + "/" + str(outname))
 		# subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
 
 		finish = datetime.datetime.now()
