@@ -89,7 +89,7 @@ def Colorize(FILE):
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
 	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
 	#black magic ffmpeg call to change the aspect ratio of each frame
-	subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
+	# subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
 	Annotate(convert_out)
 
 def Annotate(FILE):
@@ -121,8 +121,8 @@ def Annotate(FILE):
 	draw = ImageDraw.Draw(img_pil)
 	# 	# #Put our text on it
 	print("applying text... ")
-	draw.text((4268, 386), str(date), font = header_font, fill = (b, g, r, a))
-	draw.text((4268, 456), str(time), font = header_font, fill = (b, g, r, a))
+	draw.text((3268, 386), str(date), font = header_font, fill = (b, g, r, a))
+	draw.text((3268, 456), str(time), font = header_font, fill = (b, g, r, a))
 	y = 386
 	# for line in lines:
 	# 	draw.text((102, y), str(lines[lines.index(line)]), font = body_font, fill = (b, g, r, a))
