@@ -67,7 +67,7 @@ def Colorize(FILE):
 	print("CONVERTING: " + str(FILE))
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
 	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
-	subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
+	# subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
 
 	Annotate(convert_out)
 
@@ -222,7 +222,26 @@ def AIA_AddInfographic(BASE, OVERLAY, OUTNAME): #BASE: Output of AIA_GenerateBac
 
 if __name__ == '__main__':
 	try:
+		
+		for wlen in target_wavelengths: #This gets its own for loop because we need to grab all the JP2s from a given moment before we start.
+						if(os.path.isfile("live/" + wlen) == False):
+				subprocess.call("mkdir -p live/", shell = True)
+			
+			for f in glob.glob("live/" + str(wlen) + "*.jp2"): #get rid of jp2s from previous run
+				os.remove(f)
+
+			subprocess.call(['cp', '-r', wlen, "live/"]) #copy current JP2 list to a working directory
+
 		for wlen in target_wavelengths:
+
+			# if(os.path.isfile("live/" + wlen) == False):
+			# 	subprocess.call("mkdir -p live/", shell = True)
+			
+			# for f in glob.glob("live/" + str(wlen) + "*.jp2"): #get rid of jp2s from previous run
+			# 	os.remove(f)
+
+			# subprocess.call(['cp', '-r', wlen, "live/"]) #copy current JP2 list to a working directory
+
 			sorted_list = Fits_Index(str(wlen))
 			sorted_list = AIA_DecimateIndex(sorted_list, 2)
 

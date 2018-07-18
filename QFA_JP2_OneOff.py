@@ -40,22 +40,23 @@ fontpath_body = "BebasNeue Regular.otf"
 body_font = ImageFont.truetype(fontpath_body, 56)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
-current_wavelength = str(input("WAVELENGTH: "))
+current_wavelength = ""
 year = str(input("YEAR: ")).zfill(4)
 month = str(input("MONTH: ")).zfill(2)
 day = str(input("DAY: ")).zfill(2)
-print("BODY (ctrl-D to end): ")
+frameskip = input("TIMELAPSE: ")
+# print("BODY (ctrl-D to end): ")
 
-#Take input for descriptive text
-lines = []
-while(True):
-	new_line = raw_input()
-	lines.append(str(new_line))
-	if(new_line == ""):
-		break
+# #Take input for descriptive text
+# lines = []
+# while(True):
+# 	new_line = raw_input()
+# 	lines.append(str(new_line))
+# 	if(new_line == ""):
+# 		break
 
-def buildURL():
-	wlen = current_wavelength
+def buildURL(WLEN):
+	wlen = WLEN
 	urlout = "http://jsoc.stanford.edu/data/aia/images/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
 	return(urlout)
 
@@ -123,9 +124,9 @@ def Annotate(FILE):
 	draw.text((4268, 386), str(date), font = header_font, fill = (b, g, r, a))
 	draw.text((4268, 456), str(time), font = header_font, fill = (b, g, r, a))
 	y = 386
-	for line in lines:
-		draw.text((102, y), str(lines[lines.index(line)]), font = body_font, fill = (b, g, r, a))
-		y = y + 70
+	# for line in lines:
+	# 	draw.text((102, y), str(lines[lines.index(line)]), font = body_font, fill = (b, g, r, a))
+	# 	y = y + 70
 
 	# draw.text((102, 456), str(line2), font = body_font, fill = (b, g, r, a))
 	# draw.text((102, 526), str(line3), font = body_font, fill = (b, g, r, a))
@@ -172,18 +173,19 @@ def Add_Earth(FILE):
 
 #MAIN:
 if __name__ == '__main__':
-	try:
-		url = buildURL()
+
+	for wlen in target_wavelengths:
+		current_wavelength = wlen
+		url = buildURL(wlen)
 		print("CHECKING: " + str(url))
 
 		alist = []
 		for file in listFD(url, 'jp2'):
 		    alist.append(str(file))
 
-		print(alist[len(alist)-1])
+		print(alist[len(alist) - 1])
 
 		print("LENGTH: " + str(len(alist)))
-		frameskip = input("TIMELAPSE: ")
 		alist = AIA_DecimateIndex(alist, frameskip)
 		print(alist[len(alist)-1])
 
@@ -191,12 +193,12 @@ if __name__ == '__main__':
 		for file in range(0, len(alist)):
 			check = alist[file]
 			print("CHECK: " + check)
-			print("ECHO: " + "wget -P " + str(current_wavelength) + " " + check)
+			print("ECHO: " + "wget -P " + str(wlen) + " " + check)
 			
-			subprocess.call("wget -P " + str(current_wavelength) + " " + check, shell = True)
+			subprocess.call("wget -P " + str(wlen) + " " + check, shell = True)
 
 
-		sorted_list = Fits_Index(str(current_wavelength))
+		sorted_list = Fits_Index(str(wlen))
 		# sorted_list = AIA_DecimateIndex(sorted_list, 8)
 
 
@@ -205,11 +207,6 @@ if __name__ == '__main__':
 		else:
 			for file in glob.glob("numbered/*.png"):
 				os.remove(file)
-
-		# sorted_number = 0
-
-		# for f in sorted_list:
-		# 	Colorize(f)
 
 
 		# Using multiprocess.pool() to parallelize our frame rendering
@@ -220,7 +217,7 @@ if __name__ == '__main__':
 		pool.close()
 		pool.join()
 
-		outname = "NASM_" + year + month + day + ".mp4"
+		outname = "QFA_" + year + "_" + month + "_" + day + ".mp4"
 
 		print("RENDERING: " + outname)
 
@@ -234,4 +231,3 @@ if __name__ == '__main__':
 		print("TOTAL FRAMES: " + str(len(sorted_list)))
 		# print("PROCESSING TIME: " + str(frame_timer))
 		print("RENDERING TIME: " + str(render_timer))
- 
