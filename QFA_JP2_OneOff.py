@@ -219,7 +219,7 @@ if __name__ == '__main__':
 
 		direct_name = "QFA_" + year + "_" + month + "_" + day
 		subprocess.call("mkdir -p complete/" + direct_name, shell = True)
-		outname = "QFA__" + year + "_" + month + "_" + day + "__wlen" ".mp4"
+		outname = "QFA__" + year + "_" + month + "_" + day + "__" + wlen + ".mp4"
 
 		print("RENDERING: " + outname)
 
