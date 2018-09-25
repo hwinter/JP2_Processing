@@ -16,7 +16,7 @@ spectrum = ""
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 
-url = "http://jsoc.stanford.edu/data/aia/images/2018/04/10/335/"
+url = "https://helioviewer.org/jp2/AIA/"  #EX: https://helioviewer.org/jp2/AIA/   ---   2018/09/24/94/
 ext = 'jp2'
 
 alist = []
@@ -31,7 +31,7 @@ def buildURL():
 	year = time[0]
 	month = time[1]
 	day = time[2]
-	urlout = "http://jsoc.stanford.edu/data/aia/images/" + str(year) + "/" + str(month) + "/" + str(day) + "/" 
+	urlout = url + str(year) + "/" + str(month) + "/" + str(day) + "/" 
 	return(urlout)
 
 def listFD(url, ext=''):
@@ -48,7 +48,7 @@ def check_SDO():
 		year = time[0]
 		month = time[1]
 		day = time[2]
-		urlout = "http://jsoc.stanford.edu/data/aia/images/" + str(year) + "/" + str(month) + "/" + str(day) + "/" 
+		urlout = url + str(year) + "/" + str(month) + "/" + str(day) + "/" 
 
 		for wlen in target_wavelengths:
 			for file in glob.glob(str(wlen) + "/*.jp2"):
