@@ -40,7 +40,7 @@ def listFD(url, ext=''):
     soup = BeautifulSoup(page, 'html.parser')
     return [url + '/' + node.get('href') for node in soup.find_all('a') if node.get('href').endswith(ext)]
 
-def check_SDO():
+def check_SDO(URL):
 	while True:
 
 		time = datetime.now()
@@ -48,7 +48,7 @@ def check_SDO():
 		year = time[0]
 		month = time[1]
 		day = time[2]
-		urlout = url + str(year) + "/" + str(month) + "/" + str(day) + "/" 
+		urlout = URL + str(year) + "/" + str(month) + "/" + str(day) + "/" 
 
 		for wlen in target_wavelengths:
 			for file in glob.glob(str(wlen) + "/*.jp2"):
@@ -90,5 +90,5 @@ def check_SDO():
 		sleep(900)
 
 if __name__ == '__main__':
-	check_SDO()
+	check_SDO(url)
 
