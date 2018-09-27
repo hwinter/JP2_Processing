@@ -103,9 +103,9 @@ def Annotate(FILE):
 	# print("applying timestamp... ")
 	# draw.text((102, 306), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	# draw.text((102, 386), temperatures_celsius[target_wavelengths.index(wlen)], font = font, fill = (b, g, r, a))
-	draw.text((3868, 3705), "Observation Time:", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
-	draw.text((3868, 3785), str(date), font = font, fill = (b, g, r, a))
-	draw.text((3868, 3855), str(time), font = font, fill = (b, g, r, a))
+	draw.text((3700, 3705), "Observation Time:", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
+	draw.text((3700, 3785), str(date), font = font, fill = (b, g, r, a))
+	draw.text((3700, 3855), str(time), font = font, fill = (b, g, r, a))
 	draw.text((102, 3705), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
 	# 	# #Turn it back in to a numpy array for OpenCV to deal with
 	frameStamp = np.array(img_pil)
@@ -230,6 +230,7 @@ if __name__ == '__main__':
 				os.remove(f)
 
 			subprocess.call(['cp', '-r', wlen, "live/"]) #copy current JP2 list to a working directory
+			print("COPYING: " + str(wlen))
 
 		for wlen in target_wavelengths:
 
