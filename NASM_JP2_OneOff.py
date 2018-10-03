@@ -87,7 +87,7 @@ def Colorize(FILE):
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
 	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
 	#black magic ffmpeg call to change the aspect ratio of each frame
-	subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
+	# subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
 	Annotate(convert_out)
 
 def Annotate(FILE):
@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
 	subprocess.call("ffmpeg -r 16 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
 	# Add_Earth("complete/" + str(outname))
-	# subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
+	subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(1200/(iw*sar)\,1200/ih):ih*min(1200/(iw*sar)\,1200/ih), pad=1200:1200:(1200-iw*min(1200/iw\,1200/ih))/2:(1200-ih*min(1200/iw\,1200/ih))/2" ' + str(outname), shell = True)
 
 	finish = datetime.datetime.now()
 
