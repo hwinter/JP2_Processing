@@ -56,7 +56,7 @@ while(True):
 
 def buildURL():
 	wlen = current_wavelength
-	urlout = "http://jsoc.stanford.edu/data/aia/images/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
+	urlout = "https://helioviewer.org/jp2/AIA/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
 	return(urlout)
 
 def listFD(url, ext=''):
@@ -206,12 +206,6 @@ if __name__ == '__main__':
 			for file in glob.glob("numbered/*.png"):
 				os.remove(file)
 
-		# sorted_number = 0
-
-		# for f in sorted_list:
-		# 	Colorize(f)
-
-
 		# Using multiprocess.pool() to parallelize our frame rendering
 		start = datetime.datetime.now()
 
@@ -220,12 +214,12 @@ if __name__ == '__main__':
 		pool.close()
 		pool.join()
 
-		outname = "NASM_" + year + month + day + ".mp4"
+		outname = "CUSTOM_" + year + month + day + ".mp4"
 
 		print("RENDERING: " + outname)
 
 		subprocess.call("ffmpeg -r 16 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
-		Add_Earth("complete/" + str(outname))
+		# Add_Earth("complete/" + str(outname))
 		# subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
 
 		finish = datetime.datetime.now()
