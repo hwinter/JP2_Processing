@@ -119,8 +119,8 @@ def Annotate(FILE):
 	draw = ImageDraw.Draw(img_pil)
 	# 	# #Put our text on it
 	print("applying text... ")
-	draw.text((4268, 386), str(date), font = header_font, fill = (b, g, r, a))
-	draw.text((4268, 456), str(time), font = header_font, fill = (b, g, r, a))
+	draw.text((3100, 386), str(date), font = header_font, fill = (b, g, r, a))
+	draw.text((3100, 456), str(time), font = header_font, fill = (b, g, r, a))
 	y = 386
 	for line in lines:
 		draw.text((102, y), str(lines[lines.index(line)]), font = body_font, fill = (b, g, r, a))
@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
 	subprocess.call("ffmpeg -r 16 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
 	# Add_Earth("complete/" + str(outname))
-	subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(1200/(iw*sar)\,1200/ih):ih*min(1200/(iw*sar)\,1200/ih), pad=1200:1200:(1200-iw*min(1200/iw\,1200/ih))/2:(1200-ih*min(1200/iw\,1200/ih))/2" ' + str(outname), shell = True)
+	subprocess.call('ffmpeg -i complete/' + str(outname) + ' -vf "scale=(iw*sar)*min(1200/(iw*sar)\,1200/ih):ih*min(1200/(iw*sar)\,1200/ih), pad=1200:1200:(1200-iw*min(1200/iw\,1200/ih))/2:(1200-ih*min(1200/iw\,1200/ih))/2" complete/' + str(outname), shell = True)
 
 	finish = datetime.datetime.now()
 
