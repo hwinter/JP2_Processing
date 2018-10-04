@@ -218,7 +218,7 @@ if __name__ == '__main__':
 	subprocess.call("ffmpeg -r 16 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
 	# Add_Earth("complete/" + str(outname))
 	subprocess.call('ffmpeg -i complete/' + str(outname) + ' -vf "scale=(iw*sar)*min(1200/(iw*sar)\,1200/ih):ih*min(1200/(iw*sar)\,1200/ih), pad=1200:1200:(1200-iw*min(1200/iw\,1200/ih))/2:(1200-ih*min(1200/iw\,1200/ih))/2" complete/SCALED_' + str(outname), shell = True)
-	os.rename("SCALED_" + outname, outname)
+	os.rename("complete/SCALED_" + outname, "complete/" + outname)
 
 	finish = datetime.datetime.now()
 
