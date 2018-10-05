@@ -45,6 +45,8 @@ month = str(input("MONTH: ")).zfill(2)
 day = str(input("DAY: ")).zfill(2)
 print("BODY (ctrl-D to end): ")
 
+final_fps = 16
+
 #Take input for descriptive text
 lines = []
 while(True):
@@ -166,7 +168,7 @@ def Add_Earth(FILE):
 	main_video.extend( [earth_g] )
 	out_video = CompositeVideoClip(main_video)
 
-	out_video.set_duration(mlength).write_videofile(str(FILE).split(".")[0] + "_.mp4", fps = 24, threads = 2, audio = False, progress_bar = True)
+	out_video.set_duration(mlength).write_videofile(str(FILE).split(".")[0] + "_.mp4", fps = final_fps, threads = 2, audio = False, progress_bar = True)
 	os.rename(str(FILE).split(".")[0] + "_.mp4", FILE)
 
 #MAIN:
@@ -215,7 +217,7 @@ if __name__ == '__main__':
 
 	print("RENDERING: " + outname)
 
-	subprocess.call("ffmpeg -r 16 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
+	subprocess.call("ffmpeg -r " + final_fps + " -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + outname, shell = True)
 	Add_Earth("complete/" + str(outname))
 	subprocess.call('ffmpeg -i complete/' + str(outname) + ' -vf "scale=(iw*sar)*min(1200/(iw*sar)\,1200/ih):ih*min(1200/(iw*sar)\,1200/ih), pad=1200:1200:(1200-iw*min(1200/iw\,1200/ih))/2:(1200-ih*min(1200/iw\,1200/ih))/2" complete/SCALED_' + str(outname), shell = True)
 	os.rename("complete/SCALED_" + outname, "complete/" + outname)
