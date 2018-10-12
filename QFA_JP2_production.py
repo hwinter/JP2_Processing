@@ -226,7 +226,7 @@ if __name__ == '__main__':
 			if(os.path.isfile("live/" + wlen) == False):
 				subprocess.call("mkdir -p live/", shell = True)
 			
-			for f in glob.glob("live/" + str(wlen) + "*.jp2"): #get rid of jp2s from previous run
+			for f in glob.glob("live/" + str(wlen) + "/*.jp2"): #get rid of jp2s from previous run
 				os.remove(f)
 
 			subprocess.call(['cp', '-r', wlen, "live/"]) #copy current JP2 list to a working directory
@@ -234,7 +234,7 @@ if __name__ == '__main__':
 
 		for wlen in target_wavelengths:
 
-			sorted_list = Build_Index(str(wlen))
+			sorted_list = Build_Index(str("live/" + wlen))
 			sorted_list = Decimate_Index(sorted_list, 2)
 
 			current_wavelength = wlen
