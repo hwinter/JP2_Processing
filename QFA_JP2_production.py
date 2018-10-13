@@ -86,7 +86,7 @@ def Annotate(FILE):
 
 	print("ANNOTATING: " + str(FILE))
 				
-	date = str(FILE).split("__")[0].split("/")[1].replace("_", "-")
+	date = str(FILE).split("__")[0].split("/")[2].replace("_", "-")
 	time = str((FILE).split("__")[1])[:8].replace("_", ":")
 	wlen = str(FILE).split(".")[0].split("__")[2].split("_")[3].split("-")[0]
 	# date = "DATE"
@@ -299,8 +299,8 @@ if __name__ == '__main__':
 		final_clip = concatenate_videoclips([clip6, clip5.crossfadein(1), clip4.crossfadein(1), clip3.crossfadein(1), clip2.crossfadein(1), clip1.crossfadein(1)], padding = -1, method = "compose")
 		final_clip.write_videofile("daily_mov/" + str(final_outname), fps = 24, threads = 4, audio = False, progress_bar = True)
 
-		subprocess.call("ffmpeg -i " + final_outname + " -filter:v scale=3840:-1 -c:a copy _" + final_outname, shell = True)
-		os.rename(("_" + final_outname), final_outname)
+		# subprocess.call("ffmpeg -i " + final_outname + " -filter:v scale=3840:-1 -c:a copy _" + final_outname, shell = True)
+		# os.rename(("_" + final_outname), final_outname)
 
 		SendText.Send_Text(str(final_outname) + " render complete! ")
 		# Cleanup the directory when we're done
