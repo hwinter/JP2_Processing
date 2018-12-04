@@ -27,7 +27,7 @@ import datetime
 import sys
 import requests
 
-import SendText
+#import SendText
 import Purge_Media
 
 Purge_Media.Purge_Media()
@@ -40,6 +40,7 @@ fontpath_body = "BebasNeue Regular.otf"
 body_font = ImageFont.truetype(fontpath_body, 56)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
+target_wavelengths = ["304"]
 current_wavelength = ""
 year = str(input("YEAR: ")).zfill(4)
 month = str(input("MONTH: ")).zfill(2)
