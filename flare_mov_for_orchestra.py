@@ -40,16 +40,11 @@ fontpath_body = "BebasNeue Regular.otf"
 body_font = ImageFont.truetype(fontpath_body, 56)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
-target_wavelengths = ["304"]
 current_wavelength = ""
-#year = str(input("YEAR: ")).zfill(4)
-#month = str(input("MONTH: ")).zfill(2)
-#day = str(input("DAY: ")).zfill(2)
-
-year = str("2012").zfill(4)
-month = str("07")).zfill(2)
-day = str("19")).zfill(2)
-frameskip = 5
+year = str(input("YEAR: ")).zfill(4)
+month = str(input("MONTH: ")).zfill(2)
+day = str(input("DAY: ")).zfill(2)
+frameskip = input("TIMELAPSE: ")
 # print("BODY (ctrl-D to end): ")
 
 # #Take input for descriptive text
