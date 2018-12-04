@@ -47,8 +47,8 @@ current_wavelength = ""
 #day = str(input("DAY: ")).zfill(2)
 
 year = str("2012").zfill(4)
-month = str("07")).zfill(2)
-day = str("19")).zfill(2)
+month = str("07").zfill(2)
+day = str("19").zfill(2)
 frameskip = 5
 # print("BODY (ctrl-D to end): ")
 
