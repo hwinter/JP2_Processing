@@ -28,38 +28,6 @@ import datetime
 import sys
 import requests
 
-#import SendText
-#import Purge_Media
-
-#Purge_Media.Purge_Media()
-
-
-fontpath_header = "BebasNeue Regular.otf"
-header_font = ImageFont.truetype(fontpath_header, 76)
-
-fontpath_body = "BebasNeue Regular.otf"
-body_font = ImageFont.truetype(fontpath_body, 56)
-
-target_wavelengths = ["94", "171", "193", "211", "304", "335"]
-target_wavelengths = ["304"]
-current_wavelength = ""
-#year = str(input("YEAR: ")).zfill(4)
-#month = str(input("MONTH: ")).zfill(2)
-#day = str(input("DAY: ")).zfill(2)
-
-year = str("2012").zfill(4)
-month = str("07").zfill(2)
-day = str("20").zfill(2)
-frameskip = 1
-# print("BODY (ctrl-D to end): ")
-
-# #Take input for descriptive text
-# lines = []
-# while(True):
-# 	new_line = raw_input()
-# 	lines.append(str(new_line))
-# 	if(new_line == ""):
-# 		break
 
 def buildURL(WLEN):
 	wlen = WLEN
@@ -188,75 +156,4 @@ def Add_Earth(FILE):
 #MAIN:
 if __name__ == '__main__':
 
-	for wlen in target_wavelengths:
-		current_wavelength = wlen
-		url = buildURL(wlen)
-		#1print("CHECKING: " + str(url))
-
-		alist = []
-		for file in listFD(url, 'jp2'):
-		    alist.append(str(file))
-
-		print(alist[len(alist) - 1])
-
-		#1print("LENGTH: " + str(len(alist)))
-		#alist = AIA_DecimateIndex(alist, frameskip)
-		#1print(alist[len(alist)-1])
-
-
-		for file in range(0, len(alist)):			
-			check = alist[file]
-			a = urlparse.urlparse(check)
-			testpath=os.path.basename(a.path)
-			print("Testpath: " + testpath)
-			if os.path.isfile(str(wlen)+'/'+testpath) == False:
-				print("CHECK: " + check)
-				print("ECHO: " + "wget -P " + str(wlen) + " " + check)
-				subprocess.call("wget -P " + str(wlen) + " " + check, shell = True)	
-
-		sorted_list = Fits_Index(str(wlen))
-		# sorted_list = AIA_DecimateIndex(sorted_list, 8)
-
-
-		if os.path.isdir("numbered") == False:
-			subprocess.call("mkdir numbered" , shell = True)
-		#1else:
-		#1	for file in glob.glob("numbered/*.png"):
-		#1		os.remove(file)
-
-
-		# Using multiprocess.pool() to parallelize our frame rendering
-		start = datetime.datetime.now()
-		#1for item in sorted_list:
-		   #1print(item)
-		   #1Colorize, item
-		
-		#1pool = Pool()
-		#1pool.map(Colorize, sorted_list)
-		#1pool.close()
-		#1pool.join()
-
-		direct_name = "Flare" + year + "_" + month + "_" + day
-		subprocess.call("mkdir -p complete/" + direct_name, shell = True)
-		outname = "Flare__" + year + "_" + month + "_" + day + "__" + wlen + ".mp4"
-
-		print("RENDERING: " + outname)
-		
-		for fname in glob.glob("numbered/"+"*.png"):
-		   #print(os.path.basename(fname))
-		   filename, file_extension = os.path.splitext(os.path.basename(fname))
-		   print(filename)
-		   new_file="complete/"+str(filename).zfill(5)+file_extension
-		   print(new_file)
-		   subprocess.call("mv "+ fname+" "+new_file, shell = True)
-
-		subprocess.call("ffmpeg -r 24 -pattern_type glob -i 'complete/*.png'  -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y complete/" + direct_name + "/" + outname, shell = True)
-		Add_Earth("complete/" + direct_name + "/" + str(outname))
-		# subprocess.call('ffmpeg -i ' + str(outname) + ' -vf "scale=(iw*sar)*min(3840/(iw*sar)\,3240/ih):ih*min(3840/(iw*sar)\,3240/ih), pad=3840:3240:(3840-iw*min(3840/iw\,3240/ih))/2:(3240-ih*min(3240/iw\,3240/ih))/2" ' + str(outname), shell = True)
-
-		finish = datetime.datetime.now()
-
-		render_timer = finish - start
-		print("TOTAL FRAMES: " + str(len(sorted_list)))
-		# print("PROCESSING TIME: " + str(frame_timer))
-		print("RENDERING TIME: " + str(render_timer))
+	Add_Earth("numbered_1/out.mp4")
