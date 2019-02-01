@@ -3,7 +3,7 @@ import glob
 import os
 
 def Purge_Media():
-	target_wavelengths = ["94", "171", "193", "211", "304", "335"]
+	target_wavelengths = ["94", "171", "193", "211", "304", "335", "continuum", "magnetogram"]
 
 	for wlen in target_wavelengths:
 
