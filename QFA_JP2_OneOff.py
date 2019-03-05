@@ -40,6 +40,7 @@ fontpath_body = "BebasNeue Regular.otf"
 body_font = ImageFont.truetype(fontpath_body, 56)
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
+target_wavelengths = ["211", "304", "335"]
 current_wavelength = ""
 year = str(input("YEAR: ")).zfill(4)
 month = str(input("MONTH: ")).zfill(2)
@@ -57,7 +58,7 @@ frameskip = input("TIMELAPSE: ")
 
 def buildURL(WLEN):
 	wlen = WLEN
-	urlout = "http://jsoc.stanford.edu/data/aia/images/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
+	urlout =  "https://helioviewer.org/jp2/AIA/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
 	return(urlout)
 
 def listFD(url, ext=''):

@@ -39,8 +39,9 @@ header_font = ImageFont.truetype(fontpath_header, 76)
 fontpath_body = "BebasNeue Regular.otf"
 body_font = ImageFont.truetype(fontpath_body, 56)
 
+target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 target_wavelengths = ["continuum", "magnetogram"]
-current_wavelength = "magnetogram"
+current_wavelength = "193"
 #year = str(input("YEAR: ")).zfill(4)
 #month = str(input("MONTH: ")).zfill(2)
 #day = str(input("DAY: ")).zfill(2)
@@ -54,7 +55,7 @@ lines = []
 parallelize="ON"
 def buildURL():
 	wlen = current_wavelength
-	urlout = "https://helioviewer.org/jp2/HMI/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
+	urlout = "https://helioviewer.org/jp2/AIA/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
 	return(urlout)
 
 def listFD(url, ext=''):
