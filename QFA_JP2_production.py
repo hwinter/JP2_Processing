@@ -25,7 +25,7 @@ import sys
 import requests
 import traceback
 
-import SendText
+#import SendText
 
 global_date = datetime.datetime.now()
 global_date = str(global_date)
@@ -302,7 +302,7 @@ if __name__ == '__main__':
 		# subprocess.call("ffmpeg -i " + final_outname + " -filter:v scale=3840:-1 -c:a copy _" + final_outname, shell = True)
 		# os.rename(("_" + final_outname), final_outname)
 
-		SendText.Send_Text(str(final_outname) + " render complete! ")
+		#SendText.Send_Text(str(final_outname) + " render complete! ")
 		# Cleanup the directory when we're done
 		# for f in glob.glob("QFA_BaseSegment_*.mp4"):
 		# 	    os.remove(f)
@@ -316,6 +316,6 @@ if __name__ == '__main__':
 	except:
 		outname = year + month + day + "_QFA_VideoWall_Concatenated.mp4"
 		e = traceback.format_exc()
-		SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
+		#SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
 
 
