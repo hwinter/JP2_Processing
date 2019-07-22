@@ -1,15 +1,52 @@
 
+# -*- coding: utf-8 -*-
+
+#Import Modules
+
+from __future__ import print_function
+
+import matplotlib
+matplotlib.use('agg')
+
+from moviepy.editor import *
+from moviepy.video.tools.segmenting import findObjects
+from PIL import ImageFont, ImageDraw, Image
+from astropy.io import fits
+from sys import stdout as stdout
+from numba import jit
+from multiprocessing import Pool
+from bs4 import BeautifulSoup
+import urlparse
+
+
+import numpy as np
+import sunpy.instr.aia as aia
+import matplotlib.pyplot as plt
+
+import cv2
+import subprocess
+import glob
+import os
+import datetime
+import sys
+import requests
+import shutil
+
+
 def buildURL(WLEN, YEAR, MONTH, DAY):
 	
-	wlen = WLEN
-	urlout =  "https://helioviewer.org/jp2/AIA/" + str(year) + "/" + str(month) + "/" + str(day) + "/" + str(wlen) 
+	try: base_jpg_url
+	except NameError: base_jpg_url = "https://helioviewer.org/jp2/AIA/"
+	
+	urlout =  base_jpg_url + str(YEAR) + "/" + str(MONTH) + "/" + str(DAY) + "/" + str(WLEN) 
 	return(urlout)
 
 def listFD(url, ext=''):
     page = requests.get(url).text
     # print page
     soup = BeautifulSoup(page, 'html.parser')
-    return [url + '/' + node.get('href') for node in soup.find_all('a') if node.get('href').endswith(ext)]
+    return [url + '/' + node.get('href') for node in soup.find_all('a') 
+    		if node.get('href').endswith(ext)]
 
 def Fits_Index(DIR):
 	fits_list = []
@@ -32,7 +69,8 @@ def Colorize(FILE):
 	sorted_number = sorted_list.index(FILE)
 	print("CONVERTING: " + str(FILE))
 	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
-	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
+	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) +
+		 "_color_table.png -clut " + convert_out, shell = True)
 	#black magic ffmpeg call to change the aspect ratio of each frame
 	# subprocess.call('ffmpeg -i ' + str(convert_out) + ' -vf "scale=(iw*sar)*min(4854/(iw*sar)\,4096/ih):ih*min(4854/(iw*sar)\,4096/ih), pad=4854:4096:(4854-iw*min(4854/iw\,4096/ih))/2:(4096-ih*min(4096/iw\,4096/ih))/2"  -y ' + str(convert_out), shell = True)
 	Annotate(convert_out)
