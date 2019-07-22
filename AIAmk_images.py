@@ -149,7 +149,8 @@ def Annotate(FILE):
 	annotate_out = "numbered/" + FILE.split("-")[1]
 
 	print("printing frame: " + annotate_out)
-	cv2.imwrite(annotate_out, cv2.cvtColor(frameStamp, cv2.COLOR_RGB2BGR)) #It's critical to convert from BGR to RGB here, because OpenCV sees things differently from everyone else
+	#It's critical to convert from BGR to RGB here, because OpenCV sees things differently from everyone else
+	cv2.imwrite(annotate_out, cv2.cvtColor(frameStamp, cv2.COLOR_RGB2BGR)) 
 
 def Add_Earth(FILE):
 	print("ADDING EARTH TO: " + str(FILE))
@@ -158,8 +159,9 @@ def Add_Earth(FILE):
 	print("MAIN LENGTH: ", str(mainvideo_length))
 
 	mlength = mainvideo_length
-
-	earth_g = VideoFileClip("misc/Earth_WhiteBox_TBG.gif", has_mask = True, fps_source = "fps") #It's important to specify the FPS source here because otherwise Moviepy for some reason assumes it's not 24 fps, which skews our speed calculations later on.
+	#It's important to specify the FPS source here because otherwise Moviepy for some 
+	#reason assumes it's not 24 fps, which skews our speed calculations later on.
+	earth_g = VideoFileClip("misc/Earth_WhiteBox_TBG.gif", has_mask = True, fps_source = "fps") 
 
 	earthvideo_length = 60 
 	# I'm having a problem with Moviepy (go figure) skipping to what
