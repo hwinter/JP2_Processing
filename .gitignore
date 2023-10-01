@@ -1,13 +1,16 @@
+
 *pyc
 quick_test.py
 *fits
 *swp
+#ignore any png files 
 *png
 *mp4
 *csh
 *jp2
 *.1
 
-*.1
+.DS_Store
+
 
 SendText.py

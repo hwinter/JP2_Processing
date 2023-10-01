@@ -13,7 +13,7 @@ from numba import jit
 from multiprocessing import Pool
 
 import numpy as np
-import sunpy.instr.aia as aia
+#import sunpy.instr.aia as aia
 import matplotlib.pyplot as plt
 
 import cv2
@@ -25,7 +25,7 @@ import sys
 import requests
 import traceback
 
-import SendText
+#import SendText
 
 global_date = datetime.datetime.now()
 global_date = str(global_date)
@@ -55,7 +55,6 @@ def Decimate_Index(LIST, SKIP):
 	list_in = LIST
 	print("DECIMATING")
 	list_out = [list_in[i] for i in xrange(0, len(list_in), SKIP)]
-
 	return(list_out)
 
 #Applies colortable of corresponding wlen to black and white JP2 images.
@@ -328,11 +327,11 @@ if __name__ == '__main__':
 		subprocess.call("ffmpeg -i " + final_outname + " -filter:v scale=3840:-1 -c:a copy _" + final_outname, shell = True)
 		os.rename(("_" + final_outname), final_outname)
 
-		SendText.Send_Text(str(final_outname) + " render complete! ")
+		#SendText.Send_Text(str(final_outname) + " render complete! ")
 
 	except:
 		outname = year + month + day + "_GENERIC_VideoWall_DAILY.mp4"
 		e = traceback.format_exc()
-		SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
+		#SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
 
 
