@@ -11,13 +11,19 @@ import os
 
 verbose =1 
 
-#set to None for today's date
+
 year = "2023"
 month = "09"
 day = "29"
 spectrum = ""
+prune=None
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
+
+#set to None for today's date
+#time=None
+time=time = datetime.now()-timedelta(days=4)
+
 
 #target_wavelengths = ["335"]
 url = "https://helioviewer.org/jp2/AIA/"  #EX: https://helioviewer.org/jp2/AIA/   ---   2018/09/24/94/
@@ -29,31 +35,30 @@ lenb = [0, 0, 0, 0, 0, 0]
 
 
 
-def buildURL():
-	time = datetime.now()
-	time = str(time).split(" ")[0].split("-")
-	year = time[0]
-	month = time[1]
-	day = time[2]
+def build_helioviewer_URL(time=None):
+	#Build a helioviewer url based on the given time
+	if not time: time = datetime.now()
+	time_str = str(time).split(" ")[0].split("-")
+	year = time_str[0]
+	month = time_str[1]
+	day = time_str[2]
 	urlout = url + str(year) + "/" + str(month) + "/" + str(day) + "/" 
 	return(urlout)
 
 def listFD(url, ext=''):
+	#Go to url and find all of the files with the given extension
     page = requests.get(url).text
     # print page
     soup = BeautifulSoup(page, 'html.parser')
     return [url + '/' + node.get('href') for node in soup.find_all('a') if node.get('href').endswith(ext)]
 
-def check_SDO(URL, year=year, month=month, day=day):
+def check_SDO(URL, time=None, prune=None):
 	while True:
 
-		time = datetime.now()
-		time = str(time).split(" ")[0].split("-")
-		if not year: year = time[0]
-		if not month: month = time[1]
-		if not day: day = time[2]
-		urlout = URL + str(year) + "/" + str(month) + "/" + str(day) + "/" 
-
+		if not time: time = datetime.now()
+		# time = str(time).split(" ")[0].split("-")
+		# urlout = URL + str(year) + "/" + str(month) + "/" + str(day) + "/" 
+		urlout=build_helioviewer_URL(time)
 		for wlen in target_wavelengths:
 
 			url = urlout + str(wlen) + "/"
@@ -83,11 +88,12 @@ def check_SDO(URL, year=year, month=month, day=day):
 						if verbose >= 1: print("CHECK: " + check)
 						subprocess.call("wget -P " + str(wlen) + " " + str(alist[file]), shell = True)
 			#Prune old files if there are new files
-			for file in glob.glob(str(wlen) + "/*.jp2"):
-				file_mod_time = datetime.fromtimestamp(os.stat(file).st_mtime)
-				if(str(datetime.now() - file_mod_time).find("day") != -1): #if a file is more than 24 hours old
-					if verbose >= 1: print("PRUNING: " + str(file))
-					os.remove(file)
+			if prune :
+				for file in glob.glob(str(wlen) + "/*.jp2"):
+					file_mod_time = datetime.fromtimestamp(os.stat(file).st_mtime)
+					if(str(datetime.now() - file_mod_time).find("day") != -1): #if a file is more than 24 hours old
+						if verbose >= 1: print("PRUNING: " + str(file))
+						os.remove(file)
 
 		#check every 15 minutes
 		if verbose >= 1: print("Sleeping")
@@ -95,5 +101,5 @@ def check_SDO(URL, year=year, month=month, day=day):
 		sleep(900)
 
 if __name__ == '__main__':
-	check_SDO(url, year=year, month=month, day=day)
+	check_SDO(url, time=time, prune=None)
 
