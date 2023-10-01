@@ -11,9 +11,10 @@ import os
 
 verbose =1 
 
-year = ""
-month = ""
-day = ""
+#set to None for today's date
+year = "2023"
+month = "09"
+day = "29"
 spectrum = ""
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
@@ -43,18 +44,15 @@ def listFD(url, ext=''):
     soup = BeautifulSoup(page, 'html.parser')
     return [url + '/' + node.get('href') for node in soup.find_all('a') if node.get('href').endswith(ext)]
 
-def check_SDO(URL):
+def check_SDO(URL, year=year, month=month, day=day):
 	while True:
 
 		time = datetime.now()
 		time = str(time).split(" ")[0].split("-")
-		year = time[0]
-		month = time[1]
-		day = time[2]
+		if not year: year = time[0]
+		if not month: month = time[1]
+		if not day: day = time[2]
 		urlout = URL + str(year) + "/" + str(month) + "/" + str(day) + "/" 
-
-		for wlen in target_wavelengths:
-			
 
 		for wlen in target_wavelengths:
 
@@ -97,5 +95,5 @@ def check_SDO(URL):
 		sleep(900)
 
 if __name__ == '__main__':
-	check_SDO(url)
+	check_SDO(url, year=year, month=month, day=day)
 
