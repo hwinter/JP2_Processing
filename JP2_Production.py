@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#JP2_Production.py
 #REQUIREMENTS
 #1. ffmpeg
 #2. ImageMagick
@@ -7,7 +8,8 @@
 # 1. Need to add functions to check that necessary folders exist, and if the do not, create them.
 # 2. Create a directory tree map 
 
-from __future__ import print_function
+#Not necessary after the introduction of Python 3 to general use. 
+#from __future__ import print_function
 
 import matplotlib
 matplotlib.use('agg')
@@ -23,8 +25,9 @@ from PIL import ImageFont, ImageDraw, Image
 # from astropy.io import image
 from sys import stdout as stdout
 from numba import jit
-from multiprocessing import Pool
-
+import multiprocessing as mp
+#import multiprocess as mp 
+from natsort import natsorted
 import numpy as np
 #sunpy.instr has been depreciated and replaced with Sunkit-instruments and aiapy
 #However this is no longer necessary for JP2 processing.
@@ -38,10 +41,12 @@ import cv2
 import subprocess
 import glob
 import os
+import shutil
 import datetime
 import sys
 import requests
 import traceback
+
 
 #import SendText
 
@@ -50,12 +55,13 @@ import traceback
 verbose = 1
 
 #Set to 1 to use Multiproccessor or 0 to colorize frames in series
-multiprocess=-1
+multiprocess=1
 
 #Number of images to skip when making frames:
-skip_frames=2
+skip_frames=5
+#skip_frames=100
 
-earth2scale=1
+earth2scale=-1
 
 nasm_overlay=-1
 
@@ -76,12 +82,21 @@ font = ImageFont.truetype(fontpath, 56)
 #Wavelengths that will be used in the display
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 #target_wavelengths = ["171"]
-current_wavelength = ""
 
 temperatures_celsius = ["6,000,000 degrees Celsius", "1,000,000 degrees Celsius", "1,222,200 degrees Celsius", "2,000,000 degrees Celsius", "100,000 degrees Celsius", "2,500,000 degrees Celsius"]
 
+#Number of CPUs to use to make images and movies.  Set to -1 or 1 to use one thread at a time.
+n_cpus=mp.cpu_count()-1
+#n_cpus=int(np.rint(n_cpus/2))
+#n_cpus=-1
 
 #Functions. Yes I am a functional programmer using Python! Come at me bro.
+
+def Get_wave_from_filename(File_in):
+	split_1=(File_in).split("_AIA_AIA_")
+	split_2=split_1[1].split('-')
+	wlen=int(split_2[0])
+	return wlen
 
 #Compiles a sorted list of JP2 files in a given directory
 def Build_Index(DIR):
@@ -94,6 +109,22 @@ def Build_Index(DIR):
 	if verbose >=1 : print(image_list) 
 	return(image_list)
 
+#Add the index number after the name of the file 
+def Add_sort_num(FILES):
+	ii=0
+	new_files=[]
+
+	for file in FILES:
+		new_file=str(file).split(".")[0] + "--" + str(ii) + ".jp2"
+		if verbose >=1 : 
+			print(file +"->"+new_file)
+		new_files.append(new_file)
+		os.rename(file,new_file)
+		ii+=1
+
+	return new_files
+
+
 #Takes a list as an input and returns a list of every nth item for n = SKIP
 #Yes, I know that Decimate means reduced to a tenth.  Sue me.
 def Decimate_Index(LIST, SKIP):
@@ -104,13 +135,40 @@ def Decimate_Index(LIST, SKIP):
 	return(list_out)
 
 #Applies colortable of corresponding wlen to black and white JP2 images.
-def Colorize(FILE, SCALE = False, SCALEX = 0, SCALEY = 0):
+def Colorize(FILE_in, SCALE = False, SCALEX = 0, SCALEY = 0,):
+	if type(FILE_in) == list : 
+		if verbose >=1 : 
+			print("List in Annotation")
+			print(File_In)
+		FILE_in=FILE_in[0]
+
+	if verbose >=1 : print("FILE_in= "+FILE_in)
 	
-	sorted_number = sorted_list.index(FILE)
-	if verbose >=1 : print("CONVERTING: " + str(FILE))
-	convert_out = str(FILE).split(".")[0] + "-" + str(sorted_number) + ".png"
-	subprocess.call("convert " + str(FILE) + " colortables/" + str(current_wavelength) + "_color_table.png -clut " + convert_out, shell = True)
-	
+	if verbose >=1 : print("FILE "+FILE_in+" in sorted list.")
+		
+	if verbose >=1 : print("CONVERTING: " + str(FILE_in))
+		
+	sorted_number =str(str(FILE_in).split("--")[1]).split(".")[0]
+
+	if verbose >=1 : print("sorted_number= "+str(sorted_number))
+
+	convert_out = str(FILE_in).split(".")[0] + ".png"
+	if verbose >=1 : print("convert_out = "+convert_out)
+	#convert_out=FILE
+	if 'wlen' in globals(): 
+		if verbose >=1 :
+			print("wlen ok")
+		wlen=Get_wave_from_filename(FILE_in)
+		if verbose >=1 : print("wlen= "+str(wlen))
+
+	else : 
+		if verbose >=1 :print("wlen NOT ok")
+		wlen=Get_wave_from_filename(FILE_in)
+		if verbose >=1 : print("wlen= "+str(wlen))
+	convert_call="convert " + str(FILE_in) + " colortables/" + str(wlen) + "_color_table.png -clut " + convert_out
+	if verbose >=1 : print("Call to convert: "+convert_call)
+	subprocess.call(convert_call, shell = True)
+
 	#ffmpeg blackmagic that alters the aspect ratio and adds padding as needed
 	if(SCALE == True):
 		if verbose >=1 : print("SCALE function called")
@@ -121,36 +179,59 @@ def Colorize(FILE, SCALE = False, SCALEX = 0, SCALEY = 0):
 	else:
 		print("Annotation failed. ", convert_out, "is not a file")
 	if verbose >=1 : print("End Annotation")
+	if verbose >=1 : print("End Colorize")
+
+#Added a "caller" function to try to get native Python multiprocessing to work in interactive mode in iPython."
+def Call_Colorize(FILES, no_of_cpus=None):
+	if no_of_cpus == None : no_of_cpus=1
+	# Using multiprocess.pool() to parallelize our frame rendering
+	start = datetime.datetime.now()
+
+	if verbose >=1 : print("Made it to Call_Colorize")
+	if verbose >=1 : print("Number of files= "+str(len(FILES)))
+
+	if no_of_cpus > 1:
+		pool = mp.Pool(no_of_cpus)
+		pool.map(Colorize, FILES)
+		pool.close()
+		pool.join()
+	else:
+		if verbose >=1 : print("Colorizing frame by frame")
+
+		for frame_file in FILES:
+			if verbose >=1 : print(frame_file)
+			Colorize(frame_file)
+	if verbose >=1 : print("Successfully completed Call_Colorize")
+
 
 #Takes an image file as input and annotates it with a selection of text. The text selection is currently hardcoded in, as it's more efficient to write multiple lines at once.
-def Annotate(FILE):
+def Annotate(File_In):
+	if type(File_In) == list : 
+		if verbose >=1 : 
+			print("List in Annotation")
+			print(File_In)
+		File_In=File_In[0]
 	if verbose >=1 : 
 		print("Annotate")
-		print("FILE: " + str(FILE))
-	list_out=[]
+		print("File_In: " + str(File_In))
 
-
-	date = 0
-	time = 0
-	wlen = 0
 
 	b,g,r,a = 191,191,191,0 #Text color
 
-	if verbose >=1 : print("ANNOTATING: " + str(FILE))
+	if verbose >=1 : print("ANNOTATING: " + str(File_In))
 
 	#Parse data from filenames			
-	date = str(FILE).split("__")[0].split("/")[1].replace("_", "-")
-	time = str((FILE).split("__")[1])[:8].replace("_", ":")
-	wlen = str(FILE).split(".")[0].split("__")[2].split("_")[3].split("-")[0]
-	if verbose >=1 :  
+	date = str(File_In).split("__")[0].split("/")[1].replace("_", "-")
+	time = str((File_In).split("__")[1])[:8].replace("_", ":")
+	wlen = str(File_In).split(".")[0].split("__")[2].split("_")[3].split("-")[0]
+	if verbose >=1 : 
 		print("date: " + date)
 		print("time: " + time)
 		print("wavelength: " + wlen)
 	
 	
-	img = FILE
 	if verbose >=1 : print("Opening image in pil")
-	img_pil = Image.open(FILE)
+	img_pil = Image.open(File_In)
 	if img_pil.mode != "RGB":
 		if verbose >=1 : print("Converting to RGB")
 		img_pil = img_pil.convert("RGB")
@@ -165,26 +246,28 @@ def Annotate(FILE):
 	draw.text((102, 3705), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	draw.text((102, 3785), temperatures_celsius[target_wavelengths.index(wlen)], font = font, fill = (b, g, r, a))
 
+	annotate_out = "numbered/" + File_In.split("--")[1]
+	
+	if verbose >=1 : print("annotate_out: " + annotate_out)
+	img_pil.save(File_In)
+	img_pil.save(annotate_out)
+
 	#draw.text((102, 3705), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
 
-	text_clip = TextClip(txt="Welcome to Guatapé, Colombia!".upper(),
-                     size=(.8*image_clip.size[0], 0),
-                     font=fontpath,
-                     color="White")
+	#text_clip = TextClip(txt="Welcome to Guatapé, Colombia!".upper(),
+    #                 size=(.8*image_clip.size[0], 0),
+    #                 font=fontpath,
+    #                 color="White")
 	#Turn it back in to a numpy array for OpenCV to deal with
-	frameStamp = np.array(img_pil)
-	annotate_out = "numbered/" + FILE.split("-")[1]
-	list_out.append(annotate_out)
-	if verbose >=1 : print("annotate_out: " + annotate_out)
+	#frameStamp = np.array(img_pil)
 
-
-	cv2.imwrite(annotate_out, cv2.cvtColor(frameStamp, cv2.COLOR_RGB2BGR)) #It's critical to convert from BGR to RGB here, because OpenCV sees things differently from everyone else
+	#cv2.imwrite(annotate_out, cv2.cvtColor(frameStamp, cv2.COLOR_RGB2BGR)) #It's critical to convert from BGR to RGB here, because OpenCV sees things differently from everyone else
 	if verbose >=1 : 
 		print("completed cv2")
-		
-		print("Completed Annotate FILE= "+ FILE)
+		print("Completed Annotation. Original FILE= "+ File_In)
+		print("Completed Annotated FILE= "+ annotate_out)
 	
-	return list_out
+	return annotate_out
 
 
 
@@ -295,33 +378,50 @@ def Combine_clips(vlist):
 
 		final_clip = concatenate_videoclips([clip6, clip5.crossfadein(1), clip4.crossfadein(1), clip3.crossfadein(1), clip2.crossfadein(1), clip1.crossfadein(1)], padding = -1, method = "compose")
 		final_clip.write_videofile("daily_mov/" + str(final_outname), fps = 24, threads = 4, audio = False)#, progress_bar = True)
+		shutil.copy2("daily_mov/" + str(final_outname),("daily_mov/Daily_movie.mp4" ))
 		return final_clip
 
 def Add_overlay():
 	return 0
 
 if __name__ == '__main__':
+	start_0 = datetime.datetime.now()
 	if verbose >=1 : print("Target wavelengths= ",target_wavelengths)
 	try:	
 		#Copy all the JP2s to a working directory so they aren't overwritten by checksdo.py while we're working on them
 		for wlen in target_wavelengths: 
-			if(os.path.isfile("live/" + wlen) == False):
-				subprocess.call("mkdir -p live/", shell = True)
+			if verbose >=1 : print("On wavelength "+ str(target_wavelengths.index(wlen)) + " of "+str(len(target_wavelengths)))
+			if(os.path.isfile("live/" + str(wlen)) == False):
+				subprocess.call("mkdir -p live/" + str(wlen), shell = True)
 			
-			for f in glob.glob("live/" + str(wlen) + "*.jp2"): #get rid of jp2s from previous run
+			
+			if verbose >=1 : print("Starting glob #1")
+			for f in glob.glob("live/" + str(wlen) + "/*.jp2"): #get rid of jp2s from previous run
+				if verbose >=1 : print("Removing file "+f)
+				os.remove(f)
+			if verbose >=1 : print("Starting glob #2")
+			for f in glob.glob("live/" + str(wlen) + "/*.png"): #get rid of png files from previous run
+				if verbose >=1 : print("Removing file "+f)
 				os.remove(f)
 
-			subprocess.call(['cp', '-r', wlen, "live/"]) #copy current JP2 list to a working directory
-			if verbose >=1 : print("COPYING: " + str(wlen))
+			#if verbose >=1 : print("Copying to live directory")
+			#subprocess.call(['cp', '-r', wlen, "live/"]) #copy current JP2 list to a working directory
+			#if verbose >=1 : print("COPYING: " + str(wlen))
 		
 		for wlen in target_wavelengths:
-
+			if verbose >=1 : print("Current Wavelength: "+ str(wlen))
 			sorted_list = Build_Index(str(wlen))
 			if skip_frames >=1:
 				sorted_list = Decimate_Index(sorted_list, skip_frames)
 
-			current_wavelength = wlen
-			if verbose >=1 : print("Current Wavelength: "+ str(wlen))
+			for sorted_file in sorted_list:
+				new_path="live/"+str(wlen)+"/"
+				if verbose >=1 : print(sorted_file+new_path)
+				shutil.copy2(sorted_file,new_path)
+			sorted_list = Build_Index("live/"+str(wlen))
+			sorted_list=Add_sort_num(sorted_list)
+
+			
 			subprocess.call("rm " + str(wlen) + "/*.png", shell = True) #purge PNG files from previous runs. This is less than ideal, but neccessary until we solve the problem of shifting timeframes and corresponding frame numbers
 
 			if os.path.isdir("numbered") == False:
@@ -329,31 +429,22 @@ if __name__ == '__main__':
 			else:
 				for file in glob.glob("numbered/*.png"):
 					os.remove(file)
+			if verbose >=1 : 
+				for sorted_list_file in sorted_list:
+					print('Filenames to Call_Colorize= '+sorted_list_file)
+			if verbose >=1 : print("Starting colorization")
 
-			if multiprocess >= 1:
-			# Using multiprocess.pool() to parallelize our frame rendering
-				start = datetime.datetime.now()
-				if verbose >=1 : print("Made it to Pool")
-				pool = Pool(2)
-				pool.map(Colorize, sorted_list)
-				pool.close()
-				pool.join()
-			else:
-				if verbose >=1 : print("Colorizing frame by frame")
-
-				start = datetime.datetime.now()
-
-				for frame_file in sorted_list:
-					if verbose >=1 : print(frame_file)
-					Colorize(frame_file)
-
-			finish = datetime.datetime.now()
-			frame_timer = finish - start
-			if verbose >= 1 : print("Frame colorize time: " + str(frame_timer))
-			start = datetime.datetime.now()
+			if verbose >= 1 : start = datetime.datetime.now()
+			Call_Colorize(sorted_list, no_of_cpus=n_cpus)
+			
+			if verbose >= 1 : 
+				finish = datetime.datetime.now()
+				frame_timer = finish - start
+				print("Frame colorize time: " + str(frame_timer))
+			
 
 			if verbose >= 1 : print("Creating movie from frames")
-			png_sorted_list= sorted(glob.glob(str(wlen) + "/*.png"))
+			png_sorted_list= natsorted(glob.glob("numbered/*.png"))
 			video=ImageSequenceClip(png_sorted_list, fps=24)
 			video=video.resize([1330,1330])
 			#subprocess.call("ffmpeg -r 24 -i numbered/%01d.png -vcodec libx264 -b:v 4M -pix_fmt yuv420p -crf 18 -y "+wlen_file_temp, shell = True)
@@ -383,7 +474,7 @@ if __name__ == '__main__':
 
 			finish = datetime.datetime.now()
 
-			render_timer = finish - start
+			render_timer = finish - start_0
 			if verbose >=1 : 
 				print("TOTAL FRAMES: " + str(len(sorted_list)))
 				print("PROCESSING TIME: " + str(frame_timer))
@@ -407,7 +498,7 @@ if __name__ == '__main__':
 		#SendText.Send_Text(str(final_outname) + " render complete! ")
 		if verbose >=1 : print("Successful Completion")
 	except:
-		outname = year + month + day + "_GENERIC_VideoWall_DAILY.mp4"
+	#	outname = year + month + day + "_GENERIC_VideoWall_DAILY.mp4"
 		e = traceback.format_exc()
 		if verbose >=1 : print("Failure")
 		#SendText.Send_Text("ERROR: failed to render custom video: " + str(outname) + "\n \n" + str(e))
