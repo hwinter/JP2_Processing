@@ -2,10 +2,13 @@ from bs4 import BeautifulSoup
 from time import sleep
 from datetime import datetime, timedelta
 
+from JP2_Production import get_jp2_datetime
+
 import requests
 import subprocess
 import glob
 import os
+
 
 #import SendText
 
@@ -43,23 +46,6 @@ def build_helioviewer_URL(time=None):
 	urlout = url + str(year) + "/" + str(month) + "/" + str(day) + "/" 
 	return(urlout)
 
-def get_obs_date(FILES, verbose=0, FORMAT_STRING=None):
-	#get the observation date based on the helioviewer file name.
-	times=[]
-	if not FORMAT_STRING : FORMAT_STRING="%Y_%m_%d_%H_%M_%S%"
-	if FILES:
-		for file in FILES:
-			if verbose >= 1: print("Getting obs date for "+file)
-			str_time=file.split("__")
-			str_time=str_time[0]+"_"+str_time[1]
-			str_time=str_time.split("_")
-			str_time=str_time[0]+"_"+str_time[1]+"_"+str_time[2]+"_"+str_time[3]+"_"+str_time[4]+"_"+str_time[5]
-			times.append(datetime.strptime(str_time, FORMAT_STRING))
-			if verbose >= 1: print("file_components= ",file_components)
-	else:
-		print("No files entered")
-		times=None
-	return(times)
 
 def listFD(url, ext=''):
 	#Go to url and find all of the files with the given extension

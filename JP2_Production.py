@@ -58,7 +58,7 @@ verbose = 1
 multiprocess=1
 
 #Number of images to skip when making frames:
-skip_frames=5
+skip_frames=7
 #skip_frames=100
 
 earth2scale=-1
@@ -84,7 +84,8 @@ target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 #target_wavelengths = ["171"]
 
 temperatures_celsius = ["6,000,000 degrees Celsius", "1,000,000 degrees Celsius", "1,222,200 degrees Celsius", "2,000,000 degrees Celsius", "100,000 degrees Celsius", "2,500,000 degrees Celsius"]
-
+temperatures_Fahrenheit = ["10,800,000 Degrees Fahrenheit", "4,500,000 Degrees Fahrenheit", "3,600,000 Degrees Fahrenheit", 
+						   "2,200,000 Degrees Fahrenheit", "1,800,000 Degrees Fahrenheit", "180,000 Degrees Fahrenheit" ]
 #Number of CPUs to use to make images and movies.  Set to -1 or 1 to use one thread at a time.
 n_cpus=mp.cpu_count()-1
 #n_cpus=int(np.rint(n_cpus/2))
@@ -215,14 +216,17 @@ def Annotate(File_In):
 		print("Annotate")
 		print("File_In: " + str(File_In))
 
-
+	date_and_time_string=get_jp2_datetime(File_In)[1]
+	date=date_and_time_string[0]
+	time=date_and_time_string[1]
 	b,g,r,a = 191,191,191,0 #Text color
 
 	if verbose >=1 : print("ANNOTATING: " + str(File_In))
 
 	#Parse data from filenames			
-	date = str(File_In).split("__")[0].split("/")[1].replace("_", "-")
-	time = str((File_In).split("__")[1])[:8].replace("_", ":")
+	#date = str(File_In).split("__")[0].split("/")[1].replace("_", "-")
+	#time = str((File_In).split("__")[1])[:8].replace("_", ":")
+
 	wlen = str(File_In).split(".")[0].split("__")[2].split("_")[3].split("-")[0]
 	if verbose >=1 : 
 		print("date: " + date)
@@ -239,17 +243,21 @@ def Annotate(File_In):
 	if verbose >=1 : print("creating draw object")
 	draw = ImageDraw.Draw(img_pil)
 
-	draw.text((3700, 3705), "Observation Time:", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
-	draw.text((3700, 3785), str(date), font = font, fill = (b, g, r, a))
-	draw.text((3700, 3855), str(time), font = font, fill = (b, g, r, a))
+	draw.text((3500, 3705), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
+	#draw.text((3700, 3785), str(date), font = font, fill = (b, g, r, a))
+	#draw.text((3700, 3855), str(time), font = font, fill = (b, g, r, a))
+	draw.text((3500, 3785), date_and_time_string[0], font = font, fill = (b, g, r, a))
+	draw.text((3500, 3855), date_and_time_string[1], font = font, fill = (b, g, r, a))
 	if verbose >=1 : print("applying timestamp... ")
 	draw.text((102, 3705), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	draw.text((102, 3785), temperatures_celsius[target_wavelengths.index(wlen)], font = font, fill = (b, g, r, a))
+	draw.text((102, 3850), "Wavelength:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
+	draw.text((102,3930), str(wlen)+' Angstroms', font = font, fill = (b, g, r, a))
 
 	annotate_out = "numbered/" + File_In.split("--")[1]
 	
 	if verbose >=1 : print("annotate_out: " + annotate_out)
-	img_pil.save(File_In)
+	#img_pil.save(File_In)
 	img_pil.save(annotate_out)
 
 	#draw.text((102, 3705), "Earth Added for Size Scale", font = ImageFont.truetype(fontpath, 56), fill = (b, g, r, a))
@@ -384,6 +392,23 @@ def Combine_clips(vlist):
 def Add_overlay():
 	return 0
 
+	''
+def get_jp2_datetime(filename):
+	
+	if os.path.isfile(filename):
+		base_name=os.path.basename(filename).split(".")[0]
+		date = str(base_name).split("__")[0].replace("_", "-")
+		time = str((base_name).split("__")[1])[:8].replace("_", ":")+'.'+str((base_name).split("__")[1])[9:]
+
+		date_string_dict=[date,time]
+		format_string= "%Y-%m-%d %H:%M:%S.%f"
+		date_and_time = datetime.datetime.strptime(date+' '+time, format_string)
+	else:
+		print("No file named "+filename)
+		date_and_time=-1
+		date_string_dict=["Error", "No file named "+filename]
+	return date_and_time, date_string_dict
+
 if __name__ == '__main__':
 	start_0 = datetime.datetime.now()
 	if verbose >=1 : print("Target wavelengths= ",target_wavelengths)
@@ -472,6 +497,13 @@ if __name__ == '__main__':
 			
 			Add_overlay()
 
+			if verbose >=1 :
+				print("Successfully made "+str(wlen)+"video.")
+				print("Deleting jp2 files in live/"+str(wlen))
+			for f in glob.glob("live/" + str(wlen) + "/*.jp2"): #get rid of jp2s from previous run
+				if verbose >=1 : print("Removing file "+f)
+				os.remove(f)
+			if verbose >=1 : print("Deleted jp2 files in live/"+str(wlen))
 			finish = datetime.datetime.now()
 
 			render_timer = finish - start_0
