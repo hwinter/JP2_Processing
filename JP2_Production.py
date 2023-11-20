@@ -46,6 +46,7 @@ import datetime
 import sys
 import requests
 import traceback
+from checksdo import *
 
 
 #import SendText
@@ -226,8 +227,8 @@ def Annotate(File_In):
 	#Parse data from filenames			
 	#date = str(File_In).split("__")[0].split("/")[1].replace("_", "-")
 	#time = str((File_In).split("__")[1])[:8].replace("_", ":")
-
-	wlen = str(File_In).split(".")[0].split("__")[2].split("_")[3].split("-")[0]
+	wlen=Get_wave_from_filename(FILE_in)
+	
 	if verbose >=1 : 
 		print("date: " + date)
 		print("time: " + time)
@@ -407,7 +408,7 @@ def get_jp2_datetime(filename):
 		print("No file named "+filename)
 		date_and_time=-1
 		date_string_dict=["Error", "No file named "+filename]
-		
+
 	return date_and_time, date_string_dict
 
 if __name__ == '__main__':
