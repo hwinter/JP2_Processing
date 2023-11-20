@@ -1,3 +1,5 @@
+import os
+#os.chdir('/home/tracy/programs/git_folder/JP2_Processing-master')
 from bs4 import BeautifulSoup
 from time import sleep
 from datetime import datetime, timedelta
@@ -7,7 +9,6 @@ from JP2_Production import get_jp2_datetime
 import requests
 import subprocess
 import glob
-import os
 
 
 #import SendText
@@ -19,13 +20,15 @@ year = "2023"
 month = "09"
 day = "29"
 spectrum = ""
-prune=1
+remove_old_files=1
+n_days=2
 
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
+#target_wavelengths = ["193"]
 
 #set to None for today's date
 #time=None
-time=time = datetime.now()-timedelta(days=1)
+time=time = datetime.now()-timedelta(days=n_days)
 
 
 #target_wavelengths = ["335"]
@@ -54,8 +57,16 @@ def listFD(url, ext=''):
     soup = BeautifulSoup(page, 'html.parser')
     return [url + '/' + node.get('href') for node in soup.find_all('a') if node.get('href').endswith(ext)]
 
-def check_SDO(URL, time=None, prune=None):
-	while True:
+def Prune(folder, age=1, ext="jp2"):
+	for file in glob.glob(folder + "/*."+ext):
+		#file_mod_time = datetime.fromtimestamp(os.stat(file).st_mtime)
+		file_DT, junk = get_jp2_datetime(file)
+		if datetime.now() - file_DT >= timedelta(days=age): #
+			if verbose >= 1: print("PRUNING: " + str(file))
+			os.remove(file)
+
+def check_SDO(URL, time=None, prune=None, n_days=2):
+	#while True:
 
 		if not time: time = datetime.now()
 		# time = str(time).split(" ")[0].split("-")
@@ -91,17 +102,15 @@ def check_SDO(URL, time=None, prune=None):
 						subprocess.call("wget -P " + str(wlen) + " " + str(alist[file]), shell = True)
 			#Prune old files if there are new files
 			if prune :
-				for file in glob.glob(str(wlen) + "/*.jp2"):
-					file_mod_time = datetime.fromtimestamp(os.stat(file).st_mtime)
-					if(str(datetime.now() - file_mod_time).find("day") != -1): #if a file is more than 24 hours old
-						if verbose >= 1: print("PRUNING: " + str(file))
-						os.remove(file)
+				folder = str(wlen) + "/"
+				Prune(folder, age=n_days)
+
 
 		#check every 15 minutes
-		if verbose >= 1: print("Sleeping")
+	#	if verbose >= 1: print("Sleeping")
 
-		sleep(900)
+	#	sleep(900)
 
 if __name__ == '__main__':
-	check_SDO(url, time=time, prune=None)
-
+	time= datetime.now()-timedelta(days=5)
+	check_SDO(url, time=time, prune=None, n_days=n_days)

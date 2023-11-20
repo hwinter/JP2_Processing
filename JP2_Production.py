@@ -58,7 +58,7 @@ verbose = 1
 multiprocess=1
 
 #Number of images to skip when making frames:
-skip_frames=7
+skip_frames=5
 #skip_frames=100
 
 earth2scale=-1
@@ -87,7 +87,7 @@ temperatures_celsius = ["6,000,000 degrees Celsius", "1,000,000 degrees Celsius"
 temperatures_Fahrenheit = ["10,800,000 Degrees Fahrenheit", "4,500,000 Degrees Fahrenheit", "3,600,000 Degrees Fahrenheit", 
 						   "2,200,000 Degrees Fahrenheit", "1,800,000 Degrees Fahrenheit", "180,000 Degrees Fahrenheit" ]
 #Number of CPUs to use to make images and movies.  Set to -1 or 1 to use one thread at a time.
-n_cpus=mp.cpu_count()-1
+n_cpus=int(mp.cpu_count()/2)
 #n_cpus=int(np.rint(n_cpus/2))
 #n_cpus=-1
 
@@ -407,6 +407,7 @@ def get_jp2_datetime(filename):
 		print("No file named "+filename)
 		date_and_time=-1
 		date_string_dict=["Error", "No file named "+filename]
+		
 	return date_and_time, date_string_dict
 
 if __name__ == '__main__':
@@ -441,7 +442,7 @@ if __name__ == '__main__':
 
 			for sorted_file in sorted_list:
 				new_path="live/"+str(wlen)+"/"
-				if verbose >=1 : print(sorted_file+new_path)
+				if verbose >=1 : print(sorted_file+" " +new_path)
 				shutil.copy2(sorted_file,new_path)
 			sorted_list = Build_Index("live/"+str(wlen))
 			sorted_list=Add_sort_num(sorted_list)
@@ -512,7 +513,9 @@ if __name__ == '__main__':
 				print("PROCESSING TIME: " + str(frame_timer))
 				print("RENDERING TIME: " + str(render_timer))
 				print("here 2")
-				print("Number of frames= "+str(len(sorted_list)))
+
+			for png_file in sorted_list:
+				subprocess.call("rm " +png_file, shell = True) #purge files when done to save on disk space.  
 
 		if verbose >= 1 : print("Combining clips")		
 		vlist = Video_List()
