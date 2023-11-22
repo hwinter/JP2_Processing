@@ -2,7 +2,7 @@ import os
 #os.chdir('/home/tracy/programs/git_folder/JP2_Processing-master')
 from bs4 import BeautifulSoup
 from time import sleep
-from datetime import datetime, timedelta
+import datetime
 
 from JP2_Production import get_jp2_datetime
 
@@ -28,7 +28,7 @@ target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 
 #set to None for today's date
 #time=None
-time=time = datetime.now()-timedelta(days=n_days)
+time=time = datetime.now()-datetime.timedelta(days=n_days)
 
 
 #target_wavelengths = ["335"]
@@ -41,7 +41,7 @@ lenb = [0, 0, 0, 0, 0, 0]
 
 def build_helioviewer_URL(time=None):
 	#Build a helioviewer url based on the given time
-	if not time: time = datetime.now()
+	if not time: time = datetime.datetime.now()
 	time_str = str(time).split(" ")[0].split("-")
 	year = time_str[0]
 	month = time_str[1]
@@ -61,14 +61,14 @@ def Prune(folder, age=1, ext="jp2"):
 	for file in glob.glob(folder + "/*."+ext):
 		#file_mod_time = datetime.fromtimestamp(os.stat(file).st_mtime)
 		file_DT, junk = get_jp2_datetime(file)
-		if datetime.now() - file_DT >= timedelta(days=age): #
+		if datetime.datetime.now() - file_DT >= datetime.timedelta(days=age): #
 			if verbose >= 1: print("PRUNING: " + str(file))
 			os.remove(file)
 
 def check_SDO(URL, time=None, prune=None, n_days=2):
 	#while True:
 
-		if not time: time = datetime.now()
+		if not time: time = datetime.datetime.now()
 		# time = str(time).split(" ")[0].split("-")
 		# urlout = URL + str(year) + "/" + str(month) + "/" + str(day) + "/" 
 		urlout=build_helioviewer_URL(time)
@@ -84,7 +84,7 @@ def check_SDO(URL, time=None, prune=None, n_days=2):
 
 			print("LENGTH: " + str(len(alist)))
 			#if(len(alist) == 0):
-			#	SendText.Send_Text(str(datetime.now()) + "CHECKSDO ERROR: " + str(wlen) + " data not found." )
+			#	SendText.Send_Text(str(datetime.datetime.now()) + "CHECKSDO ERROR: " + str(wlen) + " data not found." )
 			
 			lenb[windex] = len(alist)
 
@@ -112,5 +112,5 @@ def check_SDO(URL, time=None, prune=None, n_days=2):
 	#	sleep(900)
 
 if __name__ == '__main__':
-	time= datetime.now()-timedelta(days=5)
+	time= datetime.datetime.now()-datetime.timedelta(days=5)
 	check_SDO(url, time=time, prune=None, n_days=n_days)
