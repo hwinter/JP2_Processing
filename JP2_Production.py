@@ -25,7 +25,7 @@ from PIL import ImageFont, ImageDraw, Image
 # from astropy.io import image
 from sys import stdout as stdout
 from numba import jit
-import multiprocessing as mp
+import multiprocess as mp
 #import multiprocess as mp 
 from natsort import natsorted
 import numpy as np
@@ -84,13 +84,22 @@ font = ImageFont.truetype(fontpath, 56)
 target_wavelengths = ["94", "171", "193", "211", "304", "335"]
 #target_wavelengths = ["171"]
 
-temperatures_celsius = ["6,000,000 degrees Celsius", "1,000,000 degrees Celsius", "1,222,200 degrees Celsius", "2,000,000 degrees Celsius", "100,000 degrees Celsius", "2,500,000 degrees Celsius"]
-temperatures_Fahrenheit = ["10,800,000 Degrees Fahrenheit", "4,500,000 Degrees Fahrenheit", "3,600,000 Degrees Fahrenheit", 
-						   "2,200,000 Degrees Fahrenheit", "1,800,000 Degrees Fahrenheit", "180,000 Degrees Fahrenheit" ]
+temperatures_celsius = {94:"6,000,000 degrees Celsius", 
+						171:"1,000,000 degrees Celsius", 
+						193:"1,222,200 degrees Celsius", 
+						211:"2,000,000 degrees Celsius", 
+						304:"100,000 degrees Celsius", 
+						335:"2,500,000 degrees Celsius"}
+temperatures_Fahrenheit = {94:"10,800,000 Degrees Fahrenheit", 
+						   335:"4,500,000 Degrees Fahrenheit", 
+						   211:"3,600,000 Degrees Fahrenheit", 
+						   193:"2,200,000 Degrees Fahrenheit", 
+						   171:"1,800,000 Degrees Fahrenheit", 
+						   304:"180,000 Degrees Fahrenheit" }
 #Number of CPUs to use to make images and movies.  Set to -1 or 1 to use one thread at a time.
 n_cpus=int(mp.cpu_count()/2)
 #n_cpus=int(np.rint(n_cpus/2))
-#n_cpus=-1
+#n_cpus=1
 
 #Functions. Yes I am a functional programmer using Python! Come at me bro.
 
@@ -138,13 +147,14 @@ def Decimate_Index(LIST, SKIP):
 
 #Applies colortable of corresponding wlen to black and white JP2 images.
 def Colorize(FILE_in, SCALE = False, SCALEX = 0, SCALEY = 0,):
+	if verbose >=1 : print("FILE_in= "+FILE_in)
 	if type(FILE_in) == list : 
 		if verbose >=1 : 
 			print("List in Annotation")
 			print(File_In)
 		FILE_in=FILE_in[0]
 
-	if verbose >=1 : print("FILE_in= "+FILE_in)
+	
 	
 	if verbose >=1 : print("FILE "+FILE_in+" in sorted list.")
 		
@@ -191,7 +201,7 @@ def Call_Colorize(FILES, no_of_cpus=None):
 
 	if verbose >=1 : print("Made it to Call_Colorize")
 	if verbose >=1 : print("Number of files= "+str(len(FILES)))
-
+	if verbose >=1 : print("Number of cpus= "+str(no_of_cpus))
 	if no_of_cpus > 1:
 		pool = mp.Pool(no_of_cpus)
 		pool.map(Colorize, FILES)
@@ -227,12 +237,12 @@ def Annotate(File_In):
 	#Parse data from filenames			
 	#date = str(File_In).split("__")[0].split("/")[1].replace("_", "-")
 	#time = str((File_In).split("__")[1])[:8].replace("_", ":")
-	wlen=Get_wave_from_filename(FILE_in)
+	wlen=Get_wave_from_filename(File_In)
 	
 	if verbose >=1 : 
 		print("date: " + date)
 		print("time: " + time)
-		print("wavelength: " + wlen)
+		print("wavelength: " + str(wlen))
 	
 	
 	if verbose >=1 : print("Opening image in pil")
@@ -243,15 +253,17 @@ def Annotate(File_In):
 
 	if verbose >=1 : print("creating draw object")
 	draw = ImageDraw.Draw(img_pil)
-
+	if verbose >=1 : print("applying timestamp... ")
 	draw.text((3500, 3705), "Observation Time:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	#draw.text((3700, 3785), str(date), font = font, fill = (b, g, r, a))
 	#draw.text((3700, 3855), str(time), font = font, fill = (b, g, r, a))
 	draw.text((3500, 3785), date_and_time_string[0], font = font, fill = (b, g, r, a))
 	draw.text((3500, 3855), date_and_time_string[1], font = font, fill = (b, g, r, a))
-	if verbose >=1 : print("applying timestamp... ")
+	if verbose >=1 : print("applied timestamp... ")
+	if verbose >=1 : print("applying temperature... ")
 	draw.text((102, 3705), "Temperature:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
-	draw.text((102, 3785), temperatures_celsius[target_wavelengths.index(wlen)], font = font, fill = (b, g, r, a))
+	if verbose >=1 : print("Getting temperature... ")
+	draw.text((102, 3785), temperatures_celsius[wlen], font = font, fill = (b, g, r, a))
 	draw.text((102, 3850), "Wavelength:", font = ImageFont.truetype(fontpath, 90), fill = (b, g, r, a))
 	draw.text((102,3930), str(wlen)+' Angstroms', font = font, fill = (b, g, r, a))
 
@@ -453,13 +465,15 @@ if __name__ == '__main__':
 
 			if os.path.isdir("numbered") == False:
 				subprocess.call("mkdir numbered" , shell = True)
-			else:
-				for file in glob.glob("numbered/*.png"):
-					os.remove(file)
+
+				
 			if verbose >=1 : 
 				for sorted_list_file in sorted_list:
 					print('Filenames to Call_Colorize= '+sorted_list_file)
 			if verbose >=1 : print("Starting colorization")
+
+			for file in glob.glob("numbered/*.png"):
+				os.remove(file)
 
 			if verbose >= 1 : start = datetime.datetime.now()
 			Call_Colorize(sorted_list, no_of_cpus=n_cpus)
@@ -490,11 +504,6 @@ if __name__ == '__main__':
 			if earth2scale >= 1:
 				Add_Earth("working/wav_vids/" + str(wlen).zfill(4) + ".mp4")
 				if verbose >= 1 : print("Completed Add_Earth "+"working/wav_vids/" + str(wlen).zfill(4) + ".mp4")
-			"""
-			"""
-			The range of the CRF scale is 0–51, where 0 is lossless, 23 is the default, and 51 is worst quality possible. 
-			A lower value generally leads to higher quality, and a subjectively sane range is 17–28. 
-			Consider 17 or 18 to be visually lossless or nearly so; it should look the same or nearly the same as the input but it isn't technically lossless.
 			"""
 			
 			Add_overlay()
